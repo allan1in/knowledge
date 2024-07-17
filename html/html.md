@@ -49,6 +49,7 @@
   - [\<hr\>](#hr)
 - [5 多媒体标签](#5-多媒体标签)
   - [\<img\>](#img)
+    - [响应式图片](#响应式图片)
   - [\<figure\>](#figure)
   - [\<figcaption\>](#figcaption)
   - [\<video\>](#video)
@@ -60,6 +61,7 @@
   - [\<embed\>](#embed)
   - [\<svg\>](#svg)
   - [\<picture\>](#picture)
+    - [响应式加载图片](#响应式加载图片)
 - [6 表格标签](#6-表格标签)
   - [\<table\>](#table)
   - [\<tr\>](#tr)
@@ -468,26 +470,22 @@ sample，程序输出，等宽字体（ monospace ）
 `<img src="https://www.example.com/images/dinosaur.jpg" alt="恐龙" width="300" height="270"/>`
 
 - 文件名要有意义，这样有利于SEO
-
 - 最好不要把链接指向别人的网站资源（热链接），这样不道德，不稳定
-
 - 属性alt，备选文字，图片加载失败时的显示文字，可用于无障碍，内容一般是对图片内容的描述。如果只是为了装饰，或者文字内容已经介绍了图片内容，写 alt="" 即可
-
 - width 和 height 属性，设置图片宽高。由于图片资源和html文档分别由相互独立的http请求获取，当图片加载较慢时，会只渲染html，等待图片传输完毕后在渲染图片，这样会导致布局的改变，因此可以通过设置宽高，先对图片区域进行占位，以固定布局。[图片渲染后布局的改变](https://developer.mozilla.org/zh-CN/docs/Learn/HTML/Multimedia_and_embedding/Images_in_HTML/no-size.png)
-
 - title 属性，鼠标悬停时显示文字，不利于无障碍，不推荐
-
 - 图片资源网站，[https://pixabay.com/](https://pixabay.com/)
-
 - 为什么不用 css 背景图片？css 没有备选文本，并且不支持无障碍阅读，更适合以装饰为目的的图片
 
-- 响应式图片，在不同设备上展示不同像素的图片， srcset 与 sizes 属性
+### 响应式图片
+
+在不同设备上展示不同像素的图片， srcset 与 sizes 属性
 
 `<img srcset="elva-fairy-480w.jpg 480w, elva-fairy-800w.jpg 800w" sizes="(max-width: 600px) 480px, 800px" src="elva-fairy-800w.jpg" alt="Elva dressed as a fairy" />`
 
-srcset 格式：文件名 图片的固有宽度w
+srcset 参数格式：文件名 图片的固有宽度w
 
-sizes 格式：(媒体条件) 条件为真时图片要填充的插槽宽度
+sizes 参数格式：(媒体条件) 条件为真时图片要填充的插槽宽度
 
 浏览器的动作：识别视口宽度，依次检查 sizes 中的媒体条件是否为真（没有条件算真），如例子中的 max-width: 600px 表示视口宽度最大为 600px ，如果为真，加载 srcset 中第一个固有宽度等于插槽宽度的图片，若没有，则加载第一个固有宽度大于插槽宽度的图片
 
@@ -692,7 +690,9 @@ SVG 是用于描述矢量图像的标记语言，它基于 XML。
 
 ## \<picture>
 
-响应式加载图片，下面的例子可以根据视口宽度的不同加载不同尺寸的图片，与 img 响应式的不同：img 侧重于不同分辨率，picture 侧重于图片尺寸的裁剪。
+### 响应式加载图片
+
+下面的例子可以根据视口宽度的不同加载不同尺寸的图片，与 img 响应式的不同：img 侧重于不同分辨率，picture 侧重于图片尺寸的裁剪。
 
 ```
 <picture>
