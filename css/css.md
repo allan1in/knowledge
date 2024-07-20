@@ -48,20 +48,56 @@
     - [子代选择器](#子代选择器)
     - [临接兄弟选择器](#临接兄弟选择器)
     - [通用兄弟选择器](#通用兄弟选择器)
-- [4 CSS层叠](#4-css层叠)
-  - [层叠](#层叠)
-  - [来源](#来源)
+- [4 CSS优先权](#4-css优先权)
+  - [CSS层叠](#css层叠)
+  - [样式来源](#样式来源)
   - [层叠层（级联层）](#层叠层级联层)
     - [创建层叠层](#创建层叠层)
       - [@layer 声明方式](#layer-声明方式)
       - [@layer 块方式](#layer-块方式)
+      - [使用 @import 将样式表导入层](#使用-import-将样式表导入层)
+    - [嵌套层](#嵌套层)
+      - [创建嵌套层](#创建嵌套层)
+    - [如何确定优先权](#如何确定优先权)
+      - [常规层叠层的优先权顺序](#常规层叠层的优先权顺序)
+      - [嵌套层叠层的优先权顺序](#嵌套层叠层的优先权顺序)
   - [选择器优先级](#选择器优先级)
 - [5 CSS继承](#5-css继承)
   - [控制继承](#控制继承)
   - [重设所有属性值](#重设所有属性值)
+- [6 盒模型](#6-盒模型)
+  - [外部显示类型](#外部显示类型)
+    - [区块盒子 (block)](#区块盒子-block)
+    - [行内盒子 (inline)](#行内盒子-inline)
+    - [行内块 (inline-block)](#行内块-inline-block)
+  - [内部显示类型](#内部显示类型)
+  - [盒模型](#盒模型)
+    - [标准盒模型](#标准盒模型)
+    - [替代盒模型](#替代盒模型)
+    - [外边距](#外边距)
+      - [相关属性](#相关属性)
+      - [外边距折叠](#外边距折叠)
+    - [边框](#边框)
+    - [内边距](#内边距)
+- [7 CSS样式](#7-css样式)
+  - [背景](#背景)
+    - [背景颜色](#背景颜色)
+    - [背景图像](#背景图像)
+    - [控制背景平铺行为](#控制背景平铺行为)
+    - [背景图像大小](#背景图像大小)
+    - [背景图像定位](#背景图像定位)
+    - [渐变背景](#渐变背景)
+    - [多个背景图像](#多个背景图像)
+    - [背景滚动方式](#背景滚动方式)
+    - [简写属性](#简写属性)
+    - [无障碍考虑](#无障碍考虑)
+  - [边框](#边框-1)
+    - [简写属性](#简写属性-1)
+    - [边框圆角](#边框圆角)
 # 资源链接
 
 - [MDN 官方教程](https://developer.mozilla.org/zh-CN/docs/Web/CSS)
+- [渐变背景在线生成](https://cssgradient.io/)
 
 # 1 CSS介绍
 
@@ -537,22 +573,21 @@ h1 ~ p {
 }
 ```
 
-# 4 CSS层叠
+# 4 CSS优先权
 
-## 层叠
+## CSS层叠
 
 当多个 css 规则同时运用在一个元素上时，会产生样式表的 ***层叠*** ，如何判断哪个规则生效呢？主要从以下几个方面判断：
 
 判断顺序：从上到下，上一级一样则判断下一级，直到某一个规则优先级胜出
 
 1. 重要程度：属性值后有 !important ，属性优先级最高
-2. 引入方式：内联样式 > 内部样式 > 外部样式
-3. 来源
-4. 层叠层
-5. 选择器优先级
-6. 出现顺序：后面的规则会覆盖前面的规则
+2. 样式来源
+3. 层叠层
+4. 选择器优先级
+5. 出现顺序：后面的规则会覆盖前面的规则
 
-## 来源
+## 样式来源
 
 CSS 可根据来源分为 3 种类型：用户代理样式表（浏览器默认的）、用户样式表（用户写的）、作者样式表（开发人员写的）
 
@@ -583,9 +618,14 @@ CSS 可根据来源分为 3 种类型：用户代理样式表（浏览器默认�
 @layer theme，layout，utilities;
 ```
 
-通常，你需要在 CSS 的第一行声明这个 @layer，以便完全控制层的顺序。如果上述声明是站点 CSS 的第一行，那么层的顺序将是 theme、layout 和 utilities。如果在上述语句之前已经创建了一些层，那么便会创建之前还没创建的层，并按 从左到右的先后顺序 将 新创建的层 添加到 层列表的末尾
+- 越靠后声明的层优先级越高
+- 通常，你需要在 CSS 的第一行声明这个 @layer，以便完全控制层的顺序。
+- 如果上述声明是站点 CSS 的第一行，那么层的顺序将是 theme、layout 和 utilities。
+- 如果在上述语句之前已经创建了一些层，例如，如果 layout 已经存在，只会创建 theme 和 utilities，层顺序将是 layout、theme 和 utilities
 
 #### @layer 块方式
+
+可以使用块 @layer 来创建匿名层或具名层
 
 ```
 /* 创建第一个层：具名层 `layout` */
@@ -595,13 +635,129 @@ CSS 可根据来源分为 3 种类型：用户代理样式表（浏览器默认�
   }
 }
 
-/* 创建第二个层：一个未命名的匿名层 */
+/* 创建第二个层：匿名层 */
 @layer {
   body {
     margin: 0;
   }
 }
 ```
+
+- 越靠后创建的层优先级越高
+- 没有办法重新排序已声明的层。如果在创建层之后，使用 @layout 声明，并且声明的是已经创建的层，声明将无法改变优先级顺序，仍然是 @layout 块的创建顺序决定优先级顺序
+- 未命名的层，没有办法引用它们或向它们添加额外的样式
+- 在层之外声明的所有样式都会加入到一个隐含的层中，这个隐含层会被排到声明列表的最后面，即拥有最高的优先级
+
+关于层创建与媒体或特性查询
+
+如果你使用媒体或特性查询来定义层，且媒体不匹配或特征不被支持，则不会创建该层（这有些反直觉，通常哪怕没有声明，使用 @layout 块仍可创建层）
+
+```
+/* 表示最小宽度不小于 50em 时创建 site 层，否则不建立 site 层 */
+
+@media (min-width: 50em) {
+  @layer site;
+}
+
+@layer page {
+  h1 {
+    text-decoration: overline;
+    color: red;
+  }
+}
+
+@layer site {
+  h1 {
+    text-decoration: underline;
+    color: green;
+  }
+}
+```
+
+#### 使用 @import 将样式表导入层
+
+导入时，@import 语句必须出现在 \<style> 代码块的最前面
+
+以下层分别将样式表导入 components 层、components 层中的嵌套 dialog 层和一个未命名层
+
+```
+@import url("components-lib.css") layer(components);
+@import url("dialog.css") layer(components.dialog);
+@import url("marketing.css") layer();
+```
+
+将多个 CSS 文件导入到单个层中
+
+```
+@import url(comments.css) layer(social);
+@import url(sm-icons.css) layer(social);
+```
+
+使用媒体查询和特性查询根据特定条件导入样式并创建层，以下将样式表导入到 international 层，但前提是浏览器支持 display: ruby，而且被导入的文件取决于屏幕的宽度
+
+```
+@import url("ruby-narrow.css") layer(international) supports(display: ruby) and
+  (width < 32rem);
+@import url("ruby-wide.css") layer(international) supports(display: ruby) and
+  (width >= 32rem);
+```
+
+### 嵌套层
+
+嵌套层是具名层或匿名层中的子层。每个层叠层（即使是匿名的）都可以包含嵌套层。导入到另一个层中的层会成为该层中的嵌套层。
+
+#### 创建嵌套层
+
+嵌套层和普通层叠层一样，也可以通过三种方式创建：声明、块、@import，只不过声明、@import用点表示法（ dad-layer.son-layer ）表示嵌套关系，块使用块中嵌套块的方式表示
+
+```
+@import url("components-lib.css") layer(components);
+@import url("narrowtheme.css") layer(components.narrow);
+```
+
+- 在第一行中，我们将 components-lib.css 导入 components 层。如果该文件包含任何层，无论命名与否，这些层都会成为 components 层中的嵌套层。
+- 第二行将 narrowtheme.css 导入 narrow 层，narrow 是 components 的子层。嵌套的 components.narrow 会作为 components 层中的最后一个层创建，除非 components-lib.css 已经包含一个 narrow 层，在这种情况下，narrowtheme.css 的内容会被附加到 components.narrow 嵌套层。
+
+```
+/* 向 components.narrow 嵌套层添加样式 */
+
+@layer components.narrow {
+  main {
+    width: 50vw;
+  }
+}
+```
+
+### 如何确定优先权
+
+#### 常规层叠层的优先权顺序
+
+```
+@import url(A.css) layer(firstLayer);
+@import url(B.css) layer(secondLayer);
+@import url(C.css);
+```
+
+上面的例子优先权如下（从低到高）：
+
+1. firstLayer 普通样式（A.css）
+2. secondLayer 普通样式（B.css）
+3. 未分层普通样式（C.css）
+4. 内联普通样式
+5. 动画样式
+6. 未分层重要样式（C.css）
+7. secondLayer 重要样式（B.css）
+8. firstLayer 重要样式（A.css）
+9. 内联重要样式
+10. 过渡样式
+
+如果样式有冲突，后面的样式会覆盖前面的样式
+
+#### 嵌套层叠层的优先权顺序
+
+- 非嵌套样式优先于普通嵌套样式
+- 晚创建或声明的嵌套层样式优先于先创建的
+- 对于重要样式，前面规则的优先级反转
 
 ## 选择器优先级
 
@@ -640,4 +796,311 @@ li > a[href*="en-US"] > .inline-warning
 .fix-this {
   all: unset;
 }
+```
+
+# 6 盒模型
+
+内部显示（inner display type）和外部显示（outer display type）
+
+## 外部显示类型
+
+### 区块盒子 (block)
+
+决定了当前盒子和盒子外其他元素的布局方式
+
+- 盒子会产生换行。
+- width 和 height 属性可以发挥作用。
+- 内边距、外边距和边框会将其他元素从当前盒子周围“推开”。
+- 如果未指定 width，方框将沿行向扩展，以填充其容器中的可用空间。在大多数情况下，盒子会变得与其容器一样宽，占据可用空间的 100%。
+
+元素：\<h1> 、 \<p>
+
+### 行内盒子 (inline)
+
+- 盒子不会产生换行。
+- width 和 height 属性将不起作用。
+- 垂直方向的内边距、外边距以及边框会被应用但是不会把其他处于 inline 状态的盒子推开。
+- 水平方向的内边距、外边距以及边框会被应用且会把其他处于 inline 状态的盒子推开。
+
+元素：\<a>、\<span>、\<em>、\<strong>
+
+### 行内块 (inline-block)
+
+通过以下属性可以设置行内块盒子，结合了块盒子和行内盒子
+
+```
+display: inline-block
+```
+
+它可以设置高度、宽度、内边距和外边距，但是周围的内容（文字）不会换行
+
+## 内部显示类型
+
+决定了盒子内元素的布局方式
+
+例如，可以通过设置 display: flex; 来更改内部显示类型。该元素仍将使用外部显示类型 block 但内部显示类型将变为 flex
+
+## 盒模型
+
+CSS 盒模型整体上适用于区块盒子，它定义了盒子的不同部分（外边距、边框、内边距和内容）如何协同工作，以创建一个在页面上可以看到的盒子。行内盒子使用的只是盒模型中定义的部分行为。
+
+盒模型组成部分：
+
+- 内容盒子(Content)：显示内容的区域；使用 inline-size 和 block-size 或 width 和 height 等属性确定其大小。
+- 内边距盒子(Padding)：填充位于内容周围的空白处；使用 padding 和相关属性确定其大小。
+- 边框盒子(Border)：边框盒子包住内容和任何填充；使用 border 和相关属性确定其大小。
+- 外边距盒子(Margin)：外边距是最外层，其包裹内容、内边距和边框，作为该盒子与其他元素之间的空白；使用 margin 和相关属性确定其大小。
+
+### 标准盒模型
+
+假设一个盒子的 CSS 如下：
+
+```
+.box {
+  width: 350px;
+  height: 150px;
+  margin: 10px;
+  padding: 25px;
+  border: 5px solid black;
+}
+```
+
+- 方框实际占用的空间宽为 410px（350 + 25 + 25 + 5 + 5）
+- 高为 210px（150 + 25 + 25 + 5 + 5）
+- 外边距不计入盒子的实际大小——当然，它影响盒子在页面上所占的总空间，但只影响盒子外的空间
+
+### 替代盒模型
+
+要为某个元素使用替代模型，可添加以下属性
+
+```
+.box {
+  box-sizing: border-box;
+}
+```
+
+这时，内边距和边框不会计入宽度或高度的计算，刚刚的示例中宽度会变为 350px，高度变为 150px
+
+要在所有元素中使用替代盒模型（***这是开发人员的常见选择***），请在 \<html> 元素上设置 box-sizing 属性，并将所有其他元素设置为继承该值：
+
+```
+html {
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+```
+
+### 外边距
+
+#### 相关属性
+
+- margin-top，上外边距
+- margin-right，右外边距
+- margin-bottom，下外边距
+- margin-left，左外边距
+- margin，分为四种情况：
+  - 指定一个值时，（上下左右）
+  - 指定两个值时，（上下）（左右）
+  - 指定三个值时，（上）（左右）（下）
+  - 指定四个值时，（上）（右）（下）（左）
+
+#### 外边距折叠
+
+- 两个正外边距将合并为一个外边距。其大小等于最大的单个外边距。
+- 两个负外边距会折叠，并使用最小（离零最远）的值。
+- 如果其中一个外边距为负值，其值将从总值中减去。
+
+### 边框
+
+- border-top，上边框
+- border-right，右边框
+- border-bottom，下边框
+- border-left，左边框
+- border-width，边框宽度
+- border-style，边框样式
+- border-color，边框颜色
+- border，可同时设置宽度、样式、颜色，例如：1px solid #000
+- 细粒度属性：border-（方位）-（宽度样式或颜色），例如 border-top-width，表示设置上边框的宽度
+
+### 内边距
+
+内边距的值不能为负数，元素的背景会显示在内边距区域
+
+- padding-top，上外边距
+- padding-right，右外边距
+- padding-bottom，下外边距
+- padding-left，左外边距
+
+# 7 CSS样式
+
+## 背景
+
+### 背景颜色
+
+```
+.box {
+  background-color: #567895;
+}
+```
+
+### 背景图像
+
+```
+.a {
+  background-image: url(balloons.jpg);
+}
+```
+
+### 控制背景平铺行为
+
+background-repeat，可用的值是：
+
+- no-repeat，阻止背景重复平铺。
+- repeat-x，仅水平方向上重复平铺。
+- repeat-y，仅垂直方向上重复平铺。
+- repeat，默认值，在水平和垂直两个方向重复平铺。
+
+### 背景图像大小
+
+background-size，可用值为：
+
+- cover：浏览器将使图像足够大，使它完全覆盖了盒子区域，同时仍然保持其宽高比。在这种情况下，图像的部分区域可能会跳出盒子外。
+- contain：浏览器会将图像调整到适合框内的尺寸。在这种情况下，如果图像的长宽比与盒子的长宽比不同，你可能会在图像的两边或顶部和底部出现空隙。
+- 数值：`background-size: 100px 10em;`，第一个参数为宽，第二个参数为高
+
+### 背景图像定位
+
+background-position，可用值为：
+
+- `background-position: 10cpx 8px;`，距离左边框 10px，距离上边框 8px
+- `background-position: top;`，顶部居中
+- `background-position: left;`，左部居中
+- `background-position: right;`，右部居中
+- `background-position: bottom;`，底部居中
+- `background-position: center;`，水平垂直居中
+- `background-position: bottom 10px right 20px;`，距离底部 10px，距离右边 20px
+
+### 渐变背景
+
+- linear-gradient，线性渐变
+- radial-gradient，辐射渐变
+
+[渐变背景在线生成](https://cssgradient.io/)
+
+### 多个背景图像
+
+```
+background-image: url(image1.png), url(image2.png), url(image3.png), url(image4.png);
+
+background-repeat: no-repeat, repeat-x, repeat;
+
+background-position: 10px 20px, top right;
+```
+
+background-image 中先出现的图片背景会覆盖后出现的图片背景
+
+当不同的属性具有不同数量的值时，属性值较少的会循环。在上面的例子中有四个背景图像，但是只有两个背景位置值。前两个位置值将应用于前两个图像，然后它们将再次循环——image3 将被赋予第一个位置值，image4 将被赋予第二个位置值。
+
+### 背景滚动方式
+
+background-attachment 属性，只有在有内容要滚动时（出现 scroll bar）才会有效果，可以取以下值：
+
+- scroll：背景在页面滚动时滚动，如果滚动元素内部的内容，背景不会移动。
+- fixed：当页面或元素内容滚动时，它都不会滚动。
+- local：当页面或元素内容滚动时，它都会滚动。
+
+[在线示例](https://mdn.github.io/learning-area/css/styling-boxes/backgrounds/background-attachment.html)
+
+### 简写属性
+
+background 属性被指定多个背景层时，使用逗号分隔每个背景层
+
+每一层的语法如下：
+
+- 在每一层中，下列的值可以出现 0 次或 1 次：
+  - \<attachment>
+  - \<bg-image>
+  - \<position>
+  - \<bg-size>
+  - \<repeat-style>
+  - \<bg-size> 只能紧接着 <position> 出现，以"/"分割，如： "center/80%".
+- \<box> 可能出现 0 次、1 次或 2 次。如果出现 1 次，它同时设定 background-origin（背景位置参考范围）和 background-clip（背景覆盖范围）。如果出现 2 次，第一次的出现设置 background-origin，第二次的出现设置 background-clip。
+- \<background-color> 只能被包含在最后一层。
+
+### 无障碍考虑
+
+- 把文字放在背景图片或颜色上面时，要保证有足够的对比度让文字清晰易读。
+- 如果设置了一个背景图像，并且文本将被放置在该图像的顶部，还应该指定一个 background-color，以便在图像未加载时文本也足够清晰。
+- 屏幕阅读器不能解析背景图像，因此背景图片应该只是纯粹的装饰；任何重要的内容都应该是 HTML 页面的一部分，而不是包含在背景中。
+
+## 边框
+
+### 简写属性
+
+```
+.box {
+  border: 1px solid black;
+}
+
+/* 上方简写等价于下面： */
+
+.box {
+  border-width: 1px;
+  border-style: solid;
+  border-color: black;
+}
+
+.box {
+  border-top: 1px solid black;
+}
+
+/* 上方简写等价于下面： */
+
+.box {
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-top-color: black;
+}
+```
+
+### 边框圆角
+
+即使元素没有边框，圆角也可以用到 background 上面，具体效果受 background-clip 影响。
+
+```
+/* 四个角都有 10px 的圆角半径 */
+
+.box {
+  border-radius: 10px;
+}
+
+/* 右上角的水平半径为 1em，垂直半径为 10％ */
+
+.box {
+  border-top-right-radius: 1em 10%;
+}
+```
+
+属性的简写：
+
+- 一个参数，所有圆角
+- 两个参数，(左上右下) (左下右上)
+- 三个参数，(左上) (右上左下) (右下)
+- 四个参数，(左上) (右上) (右下) (左上)
+- 斜线左边是水平半径，右边是垂直半径
+
+```
+border-radius: 4px 3px 6px / 2px 4px;
+
+/* 左上水平半径为 4px，右上左下水平半径为 3px，右下水平半径为 6px，左上右下垂直半径为 2px，右上左下垂直半径为 4px ，等价于： */
+
+border-top-left-radius: 4px 2px;
+border-top-right-radius: 3px 4px;
+border-bottom-right-radius: 6px 2px;
+border-bottom-left-radius: 3px 4px;
 ```
