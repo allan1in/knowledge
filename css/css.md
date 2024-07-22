@@ -106,6 +106,38 @@
     - [表单元素默认不继承](#表单元素默认不继承)
     - [重置表单样式](#重置表单样式)
   - [表格](#表格)
+    - [固定列宽](#固定列宽)
+    - [消除单元格边框之间的空隙](#消除单元格边框之间的空隙)
+    - [单元格条纹效果](#单元格条纹效果)
+    - [标题位置](#标题位置)
+  - [盒子阴影](#盒子阴影)
+    - [简单阴影](#简单阴影)
+    - [多个阴影](#多个阴影)
+    - [内部阴影](#内部阴影)
+  - [滤镜](#滤镜)
+  - [混合模式](#混合模式)
+    - [background-blend-mode](#background-blend-mode)
+    - [mix-blend-mode](#mix-blend-mode)
+    - [text-clip](#text-clip)
+  - [字体](#字体)
+    - [字体样式](#字体样式)
+      - [字体颜色](#字体颜色)
+      - [字体种类](#字体种类)
+        - [网页安全字体](#网页安全字体)
+        - [默认字体](#默认字体)
+        - [字体栈](#字体栈)
+      - [字体大小](#字体大小)
+      - [字体样式](#字体样式-1)
+      - [字体粗细](#字体粗细)
+      - [文本转换](#文本转换)
+      - [文本装饰](#文本装饰)
+      - [文字阴影](#文字阴影)
+    - [文本布局](#文本布局)
+      - [文本对齐](#文本对齐)
+      - [行高](#行高)
+      - [字母和单词间距](#字母和单词间距)
+    - [字体简写](#字体简写)
+  - [列表](#列表)
 - [8 CSS 溢出](#8-css-溢出)
   - [overflow 属性](#overflow-属性)
   - [溢出会建立区块格式化上下文](#溢出会建立区块格式化上下文)
@@ -123,11 +155,12 @@
   - [固有尺寸](#固有尺寸)
   - [设置具体的尺寸](#设置具体的尺寸)
     - [min- 和 max- 前缀的属性](#min--和-max--前缀的属性)
+- [11 CSS 前缀](#11-css-前缀)
 # 资源链接
 
 - [MDN 官方教程](https://developer.mozilla.org/zh-CN/docs/Web/CSS)
 - [渐变背景在线生成](https://cssgradient.io/)
-
+- [codepen 在线编码](https://codepen.io/)
 # 1 CSS 介绍
 
 CSS (Cascading Style Sheets)，层叠样式表
@@ -842,7 +875,7 @@ li > a[href*="en-US"] > .inline-warning
 - 内边距、外边距和边框会将其他元素从当前盒子周围“推开”。
 - 如果未指定 width，方框将沿行向扩展，以填充其容器中的可用空间。在大多数情况下，盒子会变得与其容器一样宽，占据可用空间的 100%。
 
-元素：\<h1> 、 \<p>
+元素：\<h1> 、\<p>
 
 ### 行内盒子 (inline)
 
@@ -1236,6 +1269,287 @@ textarea {
 
 ## 表格
 
+### 固定列宽
+
+```
+table {
+  border-collapse: collapse;
+}
+```
+
+通常情况下，表列的尺寸会根据所包含的内容大小而变化，通过 `table-layout: fixed`，你可以根据列标题的宽度来规定列的宽度
+
+### 消除单元格边框之间的空隙
+
+```
+table {
+  border-collapse: collapse;
+}
+```
+
+collapse，倒塌，消除单元格边框之间的空隙
+
+### 单元格条纹效果
+
+```
+tbody tr:nth-child(odd) {
+  background-color: #ff33cc;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #e495e4;
+}
+```
+
+### 标题位置
+
+```
+caption {
+  caption-side: bottom;
+}
+```
+
+## 盒子阴影
+
+### 简单阴影
+
+```
+.simple {
+  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.7);
+}
+```
+
+- 第一个长度值是水平偏移量（horizontal offset）——即向右的距离，阴影被从原始的框中偏移 (如果值为负的话则为左)。
+- 第二个长度值是垂直偏移量（vertical offset）——即阴影从原始盒子中向下偏移的距离 (或向上，如果值为负)。
+- 第三个长度的值是模糊半径（blur radius）——在阴影中应用的模糊度。
+- 颜色值是阴影的基本颜色（base color）。
+
+### 多个阴影
+
+一个盒子可以有多个阴影，可以实现多个光源的复杂效果
+
+```
+.multiple {
+  box-shadow:
+    1px 1px 1px black,
+    2px 2px 1px black,
+    3px 3px 1px red,
+    4px 4px 1px red,
+    5px 5px 1px black,
+    6px 6px 1px black;
+}
+```
+
+### 内部阴影
+
+```
+button {
+  box-shadow:
+    inset 2px 2px 1px black,
+    inset 2px 3px 5px rgba(0, 0, 0, 0.3),
+    inset -2px -3px 5px rgba(255, 255, 255, 0.5);
+}
+```
+
+## 滤镜
+
+滤镜可以应用在任何元素上，包括块元素和行内元素
+
+```
+.filter {
+  -webkit-filter: drop-shadow(5px 5px 1px rgba(0, 0, 0, 0.7));
+  filter: drop-shadow(5px 5px 1px rgba(0, 0, 0, 0.7));
+}
+```
+
+上面的例子根据边框轮廓产生阴影，括号内参数和 box-shadow() 一样，和他不同的是，使用滤镜，边框阴影会随边框样式（dot、dash）改变
+
+[更多滤镜](https://developer.mozilla.org/zh-CN/docs/Web/CSS/filter)
+
+## 混合模式
+
+### background-blend-mode
+
+将一个元素的两个背景混合
+
+[更多属性](https://developer.mozilla.org/zh-CN/docs/Web/CSS/background-blend-mode)
+
+### mix-blend-mode
+
+将一个元素的两个背景，以及下方元素的背景混合
+
+[更多属性](https://developer.mozilla.org/zh-CN/docs/Web/CSS/mix-blend-mode)
+
+### text-clip
+
+将背景图像剪贴到元素文本的形状
+
+```
+.text-clip {
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+```
+
+## 字体
+
+### 字体样式
+
+#### 字体颜色
+
+```
+p {
+  color: red;
+}
+```
+
+#### 字体种类
+
+```
+p {
+  font-family: arial;
+}
+```
+
+##### 网页安全字体
+
+网络安全字体在几乎所有最常用的操作系统（Windows，Mac，最常见的 Linux 发行版，Android 和 iOS 版本）中都可用
+
+- Arial（sans-serif）通常认为最佳做法还是添加 Helvetica 作为 Arial 的首选替代品，尽管它们的字体面几乎相同，但 Helvetica 被认为具有更好的形状，即使 Arial 更广泛地可用。
+- Courier New（monospace）使用 Courier New 作为 Courier 的首选替代方案，被认为是最佳做法。
+- Georgia（serif）
+- Times New Roman	serif	使用 Times 作为 Times New Roman 的首选替代方案，被认为是最佳做法。
+- Trebuchet MS（sans-serif）在移动操作系统上并不广泛。
+- Verdana（sans-serif）
+
+[查看主流字体在操作系统中的覆盖率](https://www.cssfontstack.com/)
+
+##### 默认字体
+
+CSS 定义了 5 个常用的字体名称：serif, sans-serif, monospace, cursive, 和 fantasy. 这些都是非常通用的，当使用这些通用名称时，使用的字体完全取决于每个浏览器，而且它们所运行的每个操作系统也会有所不同。
+
+- serif，衬线字体，即有衬线的字体（衬线是指字体笔画尾端的小装饰，存在于某些印刷体字体中）。
+- sans-serif，无衬线字体。
+- monospace，等宽字体，指包含的全部字符的宽度相同的字体，通常在编辑代码时使用。
+- cursive，手写字体，对于英文字符而言通常具有顺滑的连接笔画以模拟手写效果。
+- fantasy，装饰字体。
+
+##### 字体栈
+
+```
+p {
+  font-family: "Trebuchet MS", Verdana, sans-serif;
+}
+```
+
+当字体名称有多个单词时，需要用引号包裹
+
+#### 字体大小
+
+浏览器的根元素 font-size 标准设置的值为 16px
+
+```
+html {
+  font-size: 10px;
+}
+```
+
+#### 字体样式
+
+font-style: 用来打开和关闭文本 italic (斜体)。可能的值如下 (你很少会用到这个属性，除非你因为一些理由想将斜体文字关闭斜体状态)：
+
+- normal: 将文本设置为普通字体 (将存在的斜体关闭)
+- italic: 如果当前字体的斜体版本可用，那么文本设置为斜体版本；如果不可用，那么会利用 oblique 状态来模拟 italics。
+- oblique: 将文本设置为斜体字体的模拟版本，也就是将普通文本倾斜的样式应用到文本中。
+
+#### 字体粗细
+
+font-weight: 设置文字的粗体大小。这里有很多值可选 (比如 -light, -normal, -bold, -extrabold, -black, 等等), 不过事实上你很少会用到 normal 和 bold 以外的值：
+
+- normal, bold: 普通或者加粗的字体粗细
+- lighter, bolder: 将当前元素的粗体设置为比其父元素粗体更细或更粗一步。100–900: 数值粗体值，如果需要，可提供比上述关键字更精细的粒度控制。
+
+#### 文本转换
+
+text-transform: 允许你设置要转换的字体。值包括：
+
+- none: 防止任何转型。
+- uppercase: 将所有文本转为大写。
+- lowercase: 将所有文本转为小写。
+- capitalize: 转换所有单词让其首字母大写。
+- full-width: 将所有字形转换成全角，即固定宽度的正方形，类似于等宽字体，允许拉丁字符和亚洲语言字形（如中文，日文，韩文）对齐。
+
+#### 文本装饰
+
+text-decoration: 设置/取消字体上的文本装饰 (你将主要使用此方法在设置链接时取消设置链接上的默认下划线。) 可用值为：
+
+- none: 取消已经存在的任何文本装饰。
+- underline: 文本下划线。
+- overline: 文本上划线。
+- line-through: 穿过文本的线。
+
+注意 text-decoration 是一个缩写形式，它由 text-decoration-line, text-decoration-style 和 text-decoration-color 构成。你可以使用这些属性值的组合来创建有趣的效果，比如 text-decoration: line-through red wavy，表示设置穿过文本的线，颜色为红色，样式为波浪线
+
+#### 文字阴影
+
+```
+text-shadow: 4px 4px 5px red;
+```
+
+四个属性值：水平偏移量，垂直偏移量，模糊距离，颜色
+
+可以同时设置多个文字阴影，[这里是一些有趣的实践](https://www.sitepoint.com/moonlighting-css-text-shadow/)
+
+### 文本布局
+
+#### 文本对齐
+
+text-align 属性用来控制文本如何和它所在的内容盒子对齐。可用值如下，并且在与常规文字处理器应用程序中的工作方式几乎相同：
+
+- left: 左对齐文本。
+- right: 右对齐文本。
+- center: 居中文字。
+- justify: 使文本展开，改变单词之间的差距，使所有文本行的宽度相同。特别是当应用于其中有很多长单词的段落时。可以和 `hyphens:manual`（连字符换行）搭配使用，打破一些更长的词语。
+
+#### 行高
+
+可以设置一个无单位的值，作为乘数，通常这种是比较好的做法。无单位的值乘以 font-size 来获得 line-height。推荐的行高大约是 1.5–2 
+
+```
+line-height: 1.5;
+```
+
+文字如何在盒子内垂直居中？
+
+- 将行高（line-height）设置为盒子的内容高度（height）
+
+#### 字母和单词间距
+
+```
+p {
+  letter-spacing: 2px;
+  word-spacing: 4px;
+}
+```
+
+### 字体简写
+
+- 只有 font-size 和 font-family 是一定要指定的
+- font-size 和 line-height 属性之间必须以斜杠分隔。
+- font-family 必须最后指定。
+- font-style、font-variant 和 font-weight 必须在 font-size 之前。
+
+```
+font:
+  italic normal bold normal 3em/1.5 Helvetica,
+  Arial,
+  sans-serif;
+```
+
+## 列表
+
+
+
 # 8 CSS 溢出
 
 元素内的内容过多时会产生溢出。
@@ -1358,3 +1672,18 @@ overflow 属性是你控制一个元素溢出的方式，可以取以下值：
 例如设置一个 min-height 属性。盒子就会一直保持大于这个最小高度，但是如果有比这个盒子在最小高度状态下所能容纳的更多内容，那么盒子就会变大。
 
 对 \<img> 使用 max-width: 100%，图像可以变得比固有尺寸更小，但是不会大于固有尺寸的 100%。这样做的目的是，在没有足够空间以原有宽度展示图像时，让图像缩小，同时确保它们不会比 max-width 的宽度大。
+
+# 11 CSS 前缀
+
+浏览器厂商们有时会给实验性的或者非标准的 CSS 属性和 JavaScript API 添加前缀，这样开发者就可以用这些新的特性进行试验，同时（理论上）防止他们的试验代码被依赖，从而在标准化过程中破坏 web 开发者的代码。开发者应该等到浏览器行为标准化之后再使用未加前缀的属性。
+
+浏览器厂商们正在努力停止使用前缀来表示实验性质的代码的行为。Web 开发者一直在生产环境的网站上使用这些实验性代码，这使得浏览器厂商更难保证浏览器兼容性和处理新特性；这也伤害了更小众的浏览器，它们被迫添加其他浏览器前缀以加载热门网站。
+
+现在的趋势是将实验性功能添加在需要用户自行设置偏好或标记（flag）的地方，同时编写一个更小规模的规范，以更快达到稳定状态。
+
+主流浏览器引擎前缀：
+
+- -webkit- （谷歌，Safari，新版 Opera 浏览器，以及几乎所有 iOS 系统中的浏览器（包括 iOS 系统中的火狐浏览器）；基本上所有基于 WebKit 内核的浏览器）
+- -moz- （火狐浏览器）
+- -o- （旧版 Opera 浏览器）
+- -ms- （IE 浏览器 和 Edge 浏览器）
