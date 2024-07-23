@@ -202,11 +202,15 @@ unorder list，无序列表，可嵌套 \<ul> \<ol> \<dl>
 order list，有序列表，可嵌套 \<ul> \<ol> \<dl>
 
 ```
-<ol>
+<ol start="4" reversed>
   <li>豆汁</li>
-  <li>焦圈</li>
+  <li value="2">焦圈</li>
 </ol>
 ```
+
+- start 属性允许编号从指定数字开始计数，如例子中从 4 开始编号
+- reversed 属性使编号顺序反转为降序，默认是升序
+- value 属性使列表项可以自定义编号
 
 ## \<em>
 
