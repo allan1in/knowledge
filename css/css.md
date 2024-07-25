@@ -133,11 +133,29 @@
       - [文本装饰](#文本装饰)
       - [文字阴影](#文字阴影)
     - [文本布局](#文本布局)
+      - [文本缩进](#文本缩进)
       - [文本对齐](#文本对齐)
       - [行高](#行高)
       - [字母和单词间距](#字母和单词间距)
     - [字体简写](#字体简写)
+    - [网络字体](#网络字体)
+      - [字体资源](#字体资源)
+      - [使用网络字体](#使用网络字体)
+      - [在线字体服务](#在线字体服务)
   - [列表](#列表)
+    - [符号样式](#符号样式)
+    - [符号位置](#符号位置)
+    - [自定义符号图片](#自定义符号图片)
+    - [简写属性](#简写属性-2)
+    - [自定义计数规则](#自定义计数规则)
+  - [链接](#链接)
+    - [链接状态](#链接状态)
+    - [默认样式](#默认样式)
+    - [伪类顺序](#伪类顺序)
+    - [轮廓](#轮廓)
+    - [光标悬停样式](#光标悬停样式)
+    - [应用：链接中加入图标](#应用链接中加入图标)
+    - [样式化链接为按钮（TODO）](#样式化链接为按钮todo)
 - [8 CSS 溢出](#8-css-溢出)
   - [overflow 属性](#overflow-属性)
   - [溢出会建立区块格式化上下文](#溢出会建立区块格式化上下文)
@@ -161,6 +179,13 @@
 - [MDN 官方教程](https://developer.mozilla.org/zh-CN/docs/Web/CSS)
 - [渐变背景在线生成](https://cssgradient.io/)
 - [codepen 在线编码](https://codepen.io/)
+- 网络字体资源：
+  - [fontsquirrel](https://www.fontsquirrel.com/)
+  - [dafont](https://www.dafont.com/)
+  - [everythingfonts](https://everythingfonts.com/)
+  - [Google Font](https://www.google.com/fonts)
+
+
 # 1 CSS 介绍
 
 CSS (Cascading Style Sheets)，层叠样式表
@@ -1502,6 +1527,10 @@ text-shadow: 4px 4px 5px red;
 
 ### 文本布局
 
+#### 文本缩进
+
+text-indent，段落首行缩进
+
 #### 文本对齐
 
 text-align 属性用来控制文本如何和它所在的内容盒子对齐。可用值如下，并且在与常规文字处理器应用程序中的工作方式几乎相同：
@@ -1546,9 +1575,184 @@ font:
   sans-serif;
 ```
 
+### 网络字体
+
+#### 字体资源
+
+- [fontsquirrel](https://www.fontsquirrel.com/)
+- [dafont](https://www.dafont.com/)
+- [everythingfonts](https://everythingfonts.com/)
+
+#### 使用网络字体
+
+下载ttf字体文件，通过[网络字体生成器](https://www.fontsquirrel.com/tools/webfont-generator)生成工具包，将工具包内的 stylesheet.css 文件（ @font-face 代码块 ）导入 html，或者复制到 css 内，便可以通过 font-family 属性在 css 中使用网络字体（字体名称在 stylesheet.css 中）
+
+关于 @font-face 的细节：
+
+```
+@font-face {
+  font-family: "ciclefina";
+  src: url("fonts/cicle_fina-webfont.eot");
+  src:
+    url("fonts/cicle_fina-webfont.eot?#iefix") format("embedded-opentype"),
+    url("fonts/cicle_fina-webfont.woff2") format("woff2"),
+    url("fonts/cicle_fina-webfont.woff") format("woff"),
+    url("fonts/cicle_fina-webfont.ttf") format("truetype"),
+    url("fonts/cicle_fina-webfont.svg#ciclefina") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+```
+
+- font-family：这一行指定了你想要引用的字体的名称。
+- src：这些行指定要导入到你的 CSS(url部分) 的字体文件的路径，以及每种字体文件的格式 (format部分)。后面的部分不是必要的，但是声明它是很有用的，因为它允许浏览器更快地找到可以使用的字体。可以列出多个声明，用逗号分隔——浏览器会搜索并使用它能找到的第一个——因此，最好是把新的、更好的格式比如 WOFF2 放在前面，把偏老的，不是那么好的格式像 TTF 这样的放在后面。
+- font-weight/font-style: 这些行指定字体的粗细，以及它是否斜体。如果你正在导入相同字体的多个粗细，你可以指定它们的粗细/样式，然后使用不同的font-weight/font-style来选择它们之间的不同值，而不必调用字体种类不同名称的所有不同成员。
+
+#### 在线字体服务
+
+[Google Font](https://www.google.com/fonts)
+
 ## 列表
 
+### 符号样式
 
+用于 ul 或 ol，如下例子，设置列表项前的符号为大写罗马数字
+
+```
+ol {
+  list-style-type: upper-roman;
+}
+```
+
+### 符号位置
+
+用于 ul 或 ol，如下例子，默认值为 outside，这使项目符号位于列表项之外，设置列表项前的符号在行内。
+
+```
+ol {
+  list-style-position: inside;
+}
+```
+
+### 自定义符号图片
+
+用于 ul 或 ol，可以自定义符号为指定的图片
+
+```
+ul {
+  list-style-image: url(star.svg);
+}
+```
+
+此属性无法控制图片的位置、大小，建议使用 background 属性设置符号图片:
+
+```
+ul li {
+  padding-left: 2rem;
+  background-image: url(star.svg);
+  background-position: 0 0;
+  background-size: 1.6rem 1.6rem;
+  background-repeat: no-repeat;
+}
+```
+
+### 简写属性
+
+```
+ul {
+  list-style-type: square;
+  list-style-image: url(example.png);
+  list-style-position: inside;
+}
+```
+
+简写为
+
+```
+ul {
+  list-style: square url(example.png) inside;
+}
+```
+
+### 自定义计数规则
+
+CSS 提供了自定义编号的方法，参考以下关键词：
+
+- @counter-style
+- counter-increment
+- counter-reset
+
+## 链接
+
+### 链接状态
+
+每个链接状态对应一个伪类，因此可以通过伪类为某个状态设定特殊的样式
+
+- Link：有目的地的链接（即不只是一个具名锚点），使用 :link 伪类来应用样式。
+- Visited：已访问过（存在于浏览器历史记录中）的链接，使用 :visited 伪类来应用样式。
+- Hover：被用户鼠标指针悬停的链接，使用 :hover 伪类来应用样式。
+- Focus：被选中的链接（比如通过键盘的 Tab 移动到这个链接，或者使用像 HTMLElement.focus() 这样的方法编程地聚焦链接），使用 :focus 伪类来应用样式。
+- Active：激活（如点击）的链接，使用 :active 伪类来应用样式。
+
+### 默认样式
+
+- 链接以下划线表示。
+- 未访问链接为蓝色。
+- 已访问链接为紫色。
+- 悬停链接时，鼠标指针会变成一个小手图标。
+- 聚焦链接的周围有一个轮廓——按下键盘上的制表符键，就能聚焦本页面上的链接。（在 Mac 上，需要使用 option + tab，或通过按下 Ctrl + F7 启用全键盘控制选项。
+- 活动链接为红色。尝试在点击链接时按住鼠标键。
+
+### 伪类顺序
+
+对同一个链接，设置多个伪类时，第一个规则的样式也会在后面的规则中生效，比如一个链接被激活的时候，它也是处于悬停状态的。如果你搞错了顺序，那么就可能不会产生正确的效果。
+
+顺序口诀：LoVe Fears HAte
+
+即 :link :visited :focus :hover :active
+
+### 轮廓
+
+outline 属性可以设置元素的轮廓，元素轮廓是绘制于元素周围的一条线，位于 border 的外围，使元素突出
+
+border 和 outline 很类似，但有如下区别：
+
+- outline 不占据空间，绘制于元素内容周围。
+- 根据规范，outline 通常是矩形，但也可以是非矩形的。
+
+```
+outline: 1px dashed red;
+```
+
+可以看出，outline 是下面三个样式的简写：
+
+- outline-style，轮廓样式
+- outline-width，轮廓宽度
+- outline-color，轮廓颜色
+
+### 光标悬停样式
+
+鼠标指针悬停在元素上时显示相应样式，如下例子将指针设为小手
+
+```
+cursor: pointer;
+```
+
+### 应用：链接中加入图标
+
+如下，实现效果：在链接文字后紧跟着一个小图标
+
+```
+a[href^="http"] {
+  background: url("external-link-52.png") no-repeat 100% 0;
+  background-size: 16px 16px;
+  padding-right: 19px;
+}
+```
+
+选择拥有 href 属性且属性值以 http 开头的元素，设置一个背景，不重复，距离左边为父元素的 100%，距离顶部为 0
+
+### 样式化链接为按钮（TODO）
 
 # 8 CSS 溢出
 
