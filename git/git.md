@@ -470,4 +470,4 @@ master 分支。
 7. `ssh -T git@github.com` 命令测试连接，第一次连接会有提示让用户验证 SSH 密钥指纹（可以在[官方文档](https://docs.github.com/zh/authentication/keeping-your-account-and-data-secure/githubs-ssh-key-fingerprints)中比对公钥指纹），比较没有问题后输入 yes 并回车
 - 为什么需要公钥指纹？用户第一次通过 SSH 登录服务器时需要验证服务器的身份（防止中间人攻击），公钥指纹是对公钥的签名，会被公开在官网上，用户只要确定这个公钥是真实的就可以避免中间人攻击（哪怕中间人用这个密钥指纹伪造了一个服务器，只要中间人没有私钥，就无法解密用户通过公钥加密的内容），第一次登陆一但确认了公钥指纹，这个指纹会保存到 known_hosts 文件中，用户再次登录时会自动比对验证公钥指纹
 8. `git remote add origin '仓库SSH链接'`添加远程仓库，仓库的SSH链接可以在 Github 上获取（点击 Code 按钮）
-9. `git push -u origin master`推送到远程仓库，带上 -u 参数其实就相当于记录了push到远端分支的默认值，这样当下次我们还想要继续push的这个远端分支的时候推送命令就可以简写成 git push 即可
+9. `git push -u origin main`推送到远程仓库，带上 -u 参数其实就相当于记录了push到远端分支的默认值，这样当下次我们还想要继续push的这个远端分支的时候推送命令就可以简写成 git push 即可
