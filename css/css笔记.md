@@ -188,6 +188,39 @@
       - [display:flow-root 方法](#displayflow-root-方法)
     - [区块格式化上下文（BFC）](#区块格式化上下文bfc)
   - [定位](#定位)
+    - [静态定位](#静态定位)
+    - [相对定位](#相对定位)
+    - [绝对定位](#绝对定位)
+      - [子绝父相](#子绝父相)
+      - [z-index](#z-index)
+    - [固定定位](#固定定位)
+    - [粘性定位](#粘性定位)
+      - [应用：滚动索引](#应用滚动索引)
+  - [弹性盒子 (flex布局)](#弹性盒子-flex布局)
+    - [flex 模型](#flex-模型)
+    - [指定主轴的方向](#指定主轴的方向)
+    - [换行](#换行)
+    - [简写属性 flex-flow](#简写属性-flex-flow)
+    - [调整 flex 项尺寸](#调整-flex-项尺寸)
+      - [flex-grow](#flex-grow)
+      - [flex-shrink](#flex-shrink)
+      - [flex-basis](#flex-basis)
+    - [水平与垂直对齐](#水平与垂直对齐)
+      - [垂直方向](#垂直方向)
+      - [水平方向](#水平方向)
+    - [flex 项排序](#flex-项排序)
+    - [跨浏览器兼容性](#跨浏览器兼容性)
+  - [网格布局（grid布局）](#网格布局grid布局)
+    - [grid 模型](#grid-模型)
+    - [定义一个网格布局](#定义一个网格布局)
+      - [repeat() 函数](#repeat-函数)
+    - [网格间隙](#网格间隙)
+    - [显式网格与隐式网格](#显式网格与隐式网格)
+      - [minmax() 函数](#minmax-函数)
+      - [应用：真正的响应式布局网格](#应用真正的响应式布局网格)
+    - [根据网格线放入元素](#根据网格线放入元素)
+    - [根据区域放入元素](#根据区域放入元素)
+  - [多列布局](#多列布局)
 # 0 资源链接
 
 - [MDN 官方教程](https://developer.mozilla.org/zh-CN/docs/Web/CSS)
@@ -2041,3 +2074,397 @@ clearfix 方法：向包含浮动内容及其本身的盒子后方插入一些�
 [详细介绍](https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_display/Block_formatting_context)
 
 ## 定位
+
+定位会覆盖默认的常规流
+
+### 静态定位
+
+静态定位是每个元素的默认值，它只是意味着“将元素放入它在文档布局流中的正常位置
+
+```
+position: static;
+```
+
+### 相对定位
+
+相对元素本来的位置，使用 top，bottom，left 和 right 属性移动元素位置
+
+```
+position: relative;
+```
+
+### 绝对定位
+
+绝对定位的元素不再存在于正常文档布局流中。相反，它坐在它自己的层独立于一切。这是非常有用的：这意味着我们可以创建不干扰页面上其他元素的位置的隔离的 UI 功能。例如，弹出信息框和控制菜单；翻转面板；可以在页面上的任何地方拖放的 UI 功能
+
+```
+position: absolute;
+```
+
+#### 子绝父相
+
+如果所有的父元素都没有显式地定义 position 属性，那么所有的父元素默认情况下 position 属性都是 static，这样，绝对定位元素会被包含在 **初始块容器** 中。这个初始块容器有着和浏览器视口一样的尺寸，并且 \<html> 元素也被包含在这个容器里面
+
+给父元素设置 `position: relative;` 属性，可以给子元素设置 `position: absolute;` ，改变 **定位上下文** ，这样，子元素会以父元素为基准进行定位
+
+#### z-index
+
+当有多个元素设置了绝对定位，它们会产生重叠现象，可以通过设置 z-index 属性决定元素的覆盖关系
+
+默认情况下，定位的元素都具有 z-index 为 auto，实际上为 0，其属性值只能接受整数值，z-index 值大的覆盖值小的元素
+
+### 固定定位
+
+元素会保持在窗口的固定位置上，无论如何滚动页面
+
+```
+position: fixed;
+```
+
+### 粘性定位
+
+相对定位 和 绝对定位的混合，它允许被定位的元素表现得像相对定位一样，直到它滚动到某个阈值点（例如，从视口顶部起 10 像素）为止，此后它就变得固定了。
+
+top 属性设置距离视口顶部的阈值，left 属性设置距离视口左边的阈值
+
+```
+position: sticky;
+```
+
+#### 应用：滚动索引
+
+在正常布局流中，\<dt>元素将随内容滚动。当我们在 \<dt> 元素上添加position: sticky，并将top的值设置为 0，当标题滚动到视口的顶部时，支持此属性的浏览器会将标题粘贴到那个位置。随后，每个后续标题将替换前一个标题，直到它向上滚动到该位置
+
+```
+<h1>Sticky positioning</h1>
+
+<dl>
+  <dt>A</dt>
+  <dd>Apple</dd>
+  <dd>Ant</dd>
+  <dd>Altimeter</dd>
+  <dd>Airplane</dd>
+  <dt>B</dt>
+  <dd>Bird</dd>
+  <dd>Buzzard</dd>
+  <dd>Bee</dd>
+  <dd>Banana</dd>
+  <dd>Beanstalk</dd>
+  <dt>C</dt>
+  <dd>Calculator</dd>
+  <dd>Cane</dd>
+  <dd>Camera</dd>
+  <dd>Camel</dd>
+</dl>
+```
+
+```
+dt {
+  background-color: black;
+  color: white;
+  padding: 10px;
+  position: sticky;
+  top: 0;
+  left: 0;
+  margin: 1em 0;
+}
+```
+
+## 弹性盒子 (flex布局)
+
+长久以来，CSS 布局中唯一可靠且跨浏览器兼容的创建工具只有 floats 和 positioning。这两个工具大部分情况下都很好使，但是在某些方面它们具有一定的局限性，让人难以完成任务
+
+弹性盒子的真正价值可以体现在它的灵活性/响应性，如果你调整浏览器窗口的大小，或者增加一个 flex 项，这时的布局仍旧是好的。
+
+### flex 模型
+
+[flex 模型](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/CSS_layout/Flexbox/flex_terms.png)
+
+- 主轴（main axis）是沿着 flex 元素放置的方向延伸的轴（比如页面上的横向的行、纵向的列）。该轴的开始和结束被称为 main start 和 main end。
+- 交叉轴（cross axis）是垂直于 flex 元素放置方向的轴。该轴的开始和结束被称为 cross start 和 cross end。
+- flex 容器（flex container）：设置了 display: flex 的父元素
+- flex 项（flex item）：在 flex 容器中表现为弹性的盒子的元素
+
+### 指定主轴的方向
+
+它可以指定主轴的方向——它默认值是 row，这使得 flex 项 在按你浏览器的默认语言方向排成一行（在英语/中文浏览器中是从左到右）
+
+```
+flex-direction: column;
+```
+
+这会将 flex 项 设置为列布局：所有 flex 项 竖着排成一列
+
+还可以使用 row-reverse 和 column-reverse 值反向排列 flex 项
+
+### 换行
+
+给 flex 容器设置：
+
+```
+flex-wrap: wrap;
+```
+
+给 flex 项设置（意味着每个声明将至少为 200px 宽）：
+
+```
+flex: 200px;
+```
+
+这样当 flex 项 过多时不会溢出，会自动换到下一行
+
+### 简写属性 flex-flow
+
+```
+flex-flow: row wrap;
+```
+
+等价于：
+
+```
+flex-direction: row;
+flex-wrap: wrap;
+```
+
+### 调整 flex 项尺寸
+
+此属性是以下 CSS 属性的简写：
+
+- flex-grow
+- flex-shrink
+- flex-basis
+
+#### flex-grow
+
+给每个 flex 项添加以下属性（相当于 flex-grow），它们会等分排布：
+
+```
+flex: 1;
+```
+
+这是一个无单位的比例值，表示每个 flex 项沿主轴的可用空间大小。它是一个比例，这意味着将每个 flex 项的设置为 400000 的效果和 1 的时候是完全一样的
+
+#### flex-shrink
+
+指定了 flex 元素的收缩规则。flex 元素仅在默认宽度之和大于容器的时候才会发生收缩，其收缩的大小是依据 flex-shrink 的值（整数比例值，默认为 1 ），值越大收缩的越多
+
+#### flex-basis
+
+你还可以指定 flex 的最小值：
+
+```
+flex: 1 200px;
+```
+
+这表示，每个 flex 项将首先给出 200px 的可用空间（flex-basis），然后，剩余的可用空间将根据分配的比例共享
+
+### 水平与垂直对齐
+
+#### 垂直方向
+
+给 flex 容器设置 align-items 控制所有 flex 项在交叉轴（垂直方向）上的对齐方式。
+
+- 默认值是 stretch，其会使所有 flex 项沿着交叉轴的方向拉伸以填充父容器。如果父容器在交叉轴方向上没有固定宽度（即高度），则所有 flex 项将变得与最长的 flex 项一样长（即高度保持一致）
+- center 值会使这些项保持其原有的高度，但是会在交叉轴（垂直方向）居中。
+- flex-start 或 flex-end 使 flex 项在交叉轴的开始或结束处对齐所有的值。查看 [align-items](https://developer.mozilla.org/zh-CN/docs/Web/CSS/align-items) 了解更多。
+
+你可以给某一个 flex 项设置 align-self 属性，以覆盖 align-items 的行为，这样使能够某一个 flex 项应用其他的对齐方式
+
+#### 水平方向
+
+justify-content 控制 flex 项在主轴上的位置。
+
+- 默认值是 flex-start，这会使所有 flex 项都位于主轴的开始处
+- 你也可以用 flex-end 来让 flex 项到结尾处
+- center，可以让 flex 项在主轴居中。
+- space-around，会使所有 flex 项沿着主轴均匀地分布，在任意一端都会留有一点空间。
+- space-between，它和 space-around 非常相似，只是它不会在两端留下任何空间。
+
+### flex 项排序
+
+弹性盒子也有可以改变 flex 项的布局位置的功能，而不会影响到源顺序（即 dom 树里元素的顺序）。这也是传统布局方式很难做到的一点。
+
+给某个 flex 项设置：
+
+```
+order: 1;
+```
+
+- 所有 flex 项默认的 order 值是 0。
+- order 值大的 flex 项比 order 值小的在显示顺序中更靠后。
+- 相同 order 值的 flex 项按源顺序显示（位置越靠前顺序越靠前）。所以假如你有四个元素，其 order 值分别是 2，1，1 和 0，那么它们的显示顺序就分别是第四，第二，第三，和第一。第三个元素显示在第二个后面是因为它们的 order 值一样，且第三个元素在源顺序中排在第二个后面。
+- 可以给 order 设置负值使它们比值为 0 的元素排得更前面
+
+### 跨浏览器兼容性
+
+大多数浏览器都支持弹性盒子，诸如 Firefox、Chrome、Opera、Microsoft Edge 和 IE 11，较新版本的 Android/iOS 等等。但是你应该要意识到仍旧有被人使用的老浏览器不支持弹性盒子（或者支持，但是只是支持非常非常老版本的弹性盒子）。
+
+弹性盒子相较其他一些 CSS 特性可能更为棘手。例如，如果浏览器缺少 CSS 阴影，则该网站可能仍然可用。但是假如不支持弹性盒子功能就会完全打破布局，使其不可用。
+
+## 网格布局（grid布局）
+
+### grid 模型
+
+[grid 模型](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/CSS_layout/Grids/grid.png)
+
+- 列（column）
+- 行（row）
+- 沟槽（gutter）：行与行、列与列之间的间隙
+
+### 定义一个网格布局
+
+如下，定义了网格布局，并且添加了三个宽度为200px的列
+
+```
+display: grid;
+grid-template-columns: 200px 200px 200px;
+```
+
+使用 fr 单位响应式定义布局列，如下，会生成等分的三列：
+
+```
+grid-template-columns: 1fr 1fr 1fr;
+```
+
+#### repeat() 函数
+
+第一个参数是重复次数，第二个参数是重复的值，可以使用 repeat() 简写以上的属性：
+
+```
+grid-template-columns: repeat(3, 1fr);
+```
+
+```
+grid-template-columns: repeat(2, 2fr 1fr);
+
+/* 相当于以下属性 */
+
+grid-template-columns: 2fr 1fr 2fr 1fr；
+```
+
+关于第一个参数的特殊属性值：
+
+- auto-fill，浏览器会根据每个
+
+### 网格间隙
+
+可以使用 grid-column-gap 属性来定义列间隙；使用 grid-row-gap 来定义行间隙，设置 grid-gap 可以同时定义列间隙和行间隙属性，如下：
+
+```
+grid-gap: 20px;
+```
+
+gap属性曾经有一个grid-前缀，不过后来的标准进行了修改，目的是让他们能够在不同的布局方法中都能起作用。尽管现在这个前缀不会影响语义，但为了代码的健壮性，你可以把两个属性都写上：
+
+```
+grid-gap: 20px;
+gap: 20px;
+```
+
+### 显式网格与隐式网格
+
+显式网格是我们用 grid-template-columns 或 grid-template-rows 属性创建的。而隐式网格则是当有内容被放到网格外时才会生成的（可以理解为每一行的高度/每一列的宽度）。显式网格与隐式网格的关系与弹性盒子的 main 和 cross 轴的关系有些类似。
+
+隐式网格中生成的 行/列 大小是参数默认是 auto ，大小会根据放入的内容自动调整。比如，你只设置 grid-template-columns 而不设置 grid-template-rows，浏览器会自动按照内容高度设置每一行的高度。当然，你也可以使用 grid-auto-rows 和 grid-auto-columns 属性手动设定隐式网格轨道的高度。
+
+#### minmax() 函数
+
+可以设置行/列隐式网格的最小高/宽度，如下，行尺寸就至少为 100 像素，并且如果内容尺寸大于 100 像素则会根据内容自动调整
+
+```
+grid-auto-rows: minmax(100px, auto);
+```
+
+特殊取值：
+
+- max-content，表示网格的轨道长度自适应内容最大的那个单元格。
+- min-content，表示网格的轨道长度自适应内容最小的那个单元格。
+- auto，作为最大值时，等价于 max-content。作为最小值时，它表示轨道中单元格最小长宽 (由min-width/min-height) 的最大值。
+
+如果 最大值 < 最小值，则最大值被忽略并且 minmax(最小值, 最大值) 被看成最小值。\<flex>（fr值） 作为最大值时设置网格轨道的弹性系数；作为最小值时无效。
+
+#### 应用：真正的响应式布局网格
+
+```
+grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
+```
+
+代码逻辑：
+
+- 代码做了什么？为容器设置了 n 列网格
+- n 如何确定？通过 repeat() 函数决定列数
+- 列数如何确定？auto-fill 属性值会根据第二个参数（网格项的宽度），尽可能在每一行内放入更多的网格项
+- 网格项的宽度如何确定？minmax() 函数定义了网格项宽度的最小值和最大值，\<flex>（fr值）作为最大值时设置网格轨道的弹性系数，而最小值由 min() 函数决定
+- min() 函数如何确定网格项的最小值？如果网格项的宽度大于父容器的 100%，min() 函数会选取较小的值：100%，如果网格项的宽度小于父容器的 100%，min() 函数会选取较小的值：200px。这样避免了当网格项太宽时的溢出问题
+
+效果：
+
+- body 中放置了许多 div
+- 每个 div 的宽度必须至少为 200px。如果右侧有额外空间（小于 200 像素），div 会展开以填充空间。
+- 如果我们拓宽窗口宽度，一旦又有 200 像素的空间，就会在行中添加另一个 div。
+- 当我们缩小窗口宽度时，一旦没有至少 200px 的空间可以容纳，行中的最后一个 div 就会进入下一行。一旦该 div 掉下去，其余的 div 就会展开以填满该行。
+- 当我们继续缩小窗口宽度，直到小于 200px，这时 min() 函数起到作用，列的宽度会继续缩小，不会产生溢出
+
+### 根据网格线放入元素
+
+在定义完了网格之后，我们要把元素放入网格中。我们的网格中有许多分隔线，第一条线的起始点与文档书写模式相关。
+
+在英文中，第一条列分隔线在网格的最左边而第一条行分隔线在网格的最上面。而对于阿拉伯语，第一条列分隔线在网格的最右边，因为阿拉伯文是从右往左书写的。
+
+我们根据这些分隔线来放置元素，通过以下属性来指定从那条线开始到哪条线结束。
+
+- grid-column-start
+- grid-column-end
+- grid-row-start
+- grid-row-end
+
+这些属性的值均为分隔线序号，你也可以用以下缩写形式来同时指定开始与结束的线。
+
+- grid-column
+- grid-row
+
+元素从第一条网格线开始，到第三条网格线结束：
+
+```
+grid-column: 1 / 3;
+```
+
+元素在第二个网格项上（等同于 `grid-column: 2 / 3;` ）：
+
+```
+grid-column: 2;
+```
+
+元素从第一条网格线开始，跨越 2 个网格项：
+```
+grid-column: 1 / span 2;
+```
+
+### 根据区域放入元素
+
+给父容器设置属性：
+
+```
+grid-template-areas:
+    "header header"
+    "sidebar content"
+    "footer footer";
+```
+
+给元素添加属性，放到定义的 header 区域：
+
+```
+header {
+  grid-area: header;
+}
+```
+
+grid-template-areas 属性的使用规则如下：
+
+- 你需要填满网格的每个格子
+- 对于某个横跨多个格子的元素，重复写上那个元素grid-area属性定义的区域名字
+- 所有名字只能出现在一个连续的区域，不能在不同的位置出现
+- 一个连续的区域必须是一个矩形
+- 使用.符号，让一个格子留空
+
+## 多列布局
