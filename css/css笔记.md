@@ -295,7 +295,7 @@
 
 # 1 CSS 介绍
 
-CSS (Cascading Style Sheets)，层叠样式表
+CSS (Cascading Style Sheets)，层叠样式表，一种标记语言
 
 ```
 h1 {
