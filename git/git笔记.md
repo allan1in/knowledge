@@ -112,6 +112,10 @@ Git 三种操作工具
 - Git CMD（ v2.19.1 Git CMD在Windows版本中已弃用。默认是在PATH中有Git .exe，所以CMD和Git CMD之间没有明显的区别 ）
 - Git GUI（ 图形界面 ）
 
+建议使用 Git bash，输入命令开启大小写敏感：
+
+- `git config --global core.ignorecase false`
+
 建议使用 Git bash，输入命令配置用户名和邮箱
 
 - `$ Git config --global user.name "John Doe"`，配置用户名
