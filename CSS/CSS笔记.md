@@ -47,7 +47,7 @@
     - [临接兄弟选择器](#临接兄弟选择器)
     - [通用兄弟选择器](#通用兄弟选择器)
 - [3 CSS 优先权](#3-css-优先权)
-  - [CSS 层叠](#css-层叠)
+  - [CSS 层叠（级联）](#css-层叠级联)
   - [样式来源](#样式来源)
   - [层叠层（级联层）](#层叠层级联层)
     - [创建层叠层](#创建层叠层)
@@ -88,6 +88,7 @@
     - [背景滚动方式](#背景滚动方式)
     - [简写属性](#简写属性)
     - [无障碍考虑](#无障碍考虑)
+    - [背景裁切](#背景裁切)
   - [边框](#边框-1)
     - [简写属性](#简写属性-1)
     - [边框圆角](#边框圆角)
@@ -183,6 +184,7 @@
     - [动画时长](#动画时长)
     - [动画播放次数](#动画播放次数)
     - [往复运动动画](#往复运动动画)
+    - [填充模式](#填充模式)
     - [简写属性](#简写属性-3)
 - [6 CSS 的值与单位](#6-css-的值与单位)
   - [继承](#继承)
@@ -279,19 +281,20 @@
   - [跨浏览器测试（TODO）](#跨浏览器测试todo)
 # 0 资源链接
 
-- [MDN 官方教程](https://developer.mozilla.org/zh-CN/docs/Web/CSS)
-- [渐变背景在线生成](https://cssgradient.io/)
-- [codepen 在线编码](https://codepen.io/)
+- [MDN-官方教程](https://developer.mozilla.org/zh-CN/docs/Web/CSS)
+- [cssgradient-渐变背景在线生成](https://cssgradient.io/)
+- [codepen-在线编码playground](https://codepen.io/)
 - 网络字体资源：
   - [fontsquirrel](https://www.fontsquirrel.com/)
   - [dafont](https://www.dafont.com/)
   - [everythingfonts](https://everythingfonts.com/)
   - [Google Font](https://www.google.com/fonts)
-- [Bootstrap 框架](https://getbootstrap.com/)
-- [Foundation 框架](https://get.foundation/)
-- [Skeleton 框架](http://getskeleton.com/)
-- [Startcounter 查询站点用户数据、查询设备市占率](http://gs.statcounter.com/)
-- [Can I Use 查询浏览器对特性的支持情况](https://caniuse.com/)
+- [Bootstrap-CSS框架](https://getbootstrap.com/)
+- [Foundation-CSS框架](https://get.foundation/)
+- [Skeleton-CSS框架](http://getskeleton.com/)
+- [Startcounter-查询站点用户数据、查询设备市占率](http://gs.statcounter.com/)
+- [Can I Use-查询浏览器对特性的支持情况](https://caniuse.com/)
+- [clippy-在线生成裁切背景代码](https://bennettfeely.com/clippy/)
 
 # 1 CSS 介绍
 
@@ -788,9 +791,9 @@ h1 ~ p {
 
 # 3 CSS 优先权
 
-## CSS 层叠
+## CSS 层叠（级联）
 
-当多个 css 规则同时运用在一个元素上时，会产生样式表的 ***层叠*** ，如何判断哪个规则生效呢？主要从以下几个方面判断：
+当多个 css 规则同时运用在一个元素上时，会产生样式表的 ***层叠*** （Cascade），这是一个合并冲突样式的过程，如何判断哪个样式规则生效呢？主要从以下几个方面判断：
 
 判断顺序：从上到下，上一级一样则判断下一级，直到某一个规则优先级胜出
 
@@ -1241,6 +1244,16 @@ background 属性被指定多个背景层时，使用逗号分隔每个背景层
 - 把文字放在背景图片或颜色上面时，要保证有足够的对比度让文字清晰易读。
 - 如果设置了一个背景图像，并且文本将被放置在该图像的顶部，还应该指定一个 background-color，以便在图像未加载时文本也足够清晰。
 - 屏幕阅读器不能解析背景图像，因此背景图片应该只是纯粹的装饰；任何重要的内容都应该是 HTML 页面的一部分，而不是包含在背景中。
+
+### 背景裁切
+
+- 剪切路径：clip-path
+- polygon() 多边形函数，选择 n 个点，这 n 个点按顺序相连，得到裁切的背景
+- [clip工具](https://bennettfeely.com/clippy/)
+
+```
+clip-path: polygon(0 0, 100% 0, 100% 80%, 0 100%);
+```
 
 ## 边框
 
@@ -2067,7 +2080,7 @@ transition-delay: 3s
 ### 属性缩写
 
 ```
-transition: <property> <duration> <timing-function> <delay>;
+transition: <property> <duration> <timing-function> <delay> <iteration-count> <direction> <fill-mode> <play-state> <name>;
 ```
 
 ## 动画
@@ -2148,6 +2161,15 @@ animation-iteration-count: infinite;
 ```
 animation-direction: alternate;
 ```
+
+### 填充模式
+
+animation-fill-mode，决定动画开始前或结束后应用的样式
+
+- none。当动画未执行时，动画将不会将任何样式应用于目标，而是已经赋予给该元素的 CSS 规则来显示该元素。这是默认值。
+- forwards，动画结束时，保留动画最后一个关键帧的样式。
+- backwards，在animation-delay期间，动画将使用第一个关键帧中定义的样式
+- both，动画将同时使用 forwards 和 backwards 的规则
 
 ### 简写属性
 

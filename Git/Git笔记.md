@@ -68,7 +68,9 @@
 
 - [廖雪峰 Git 教程](https://www.liaoxuefeng.com/wiki/896043488029600)
 - [Git 官方教程](/git/progit.pdf)
-
+- [语义化版本-如何选择版本号](https://semver.org/lang/zh-CN/)
+- [约定式提交-提交信息的规范](https://www.conventionalcommits.org/en/v1.0.0/)
+- [Angular Commit Guidelines](https://github.com/angular/angular/blob/22b96b9/CONTRIBUTING.md#-commit-message-guidelines)
 # 1 介绍
 
 ## 版本控制

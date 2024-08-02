@@ -8,6 +8,8 @@
   - [\<title\>](#title)
   - [\<meta\>](#meta)
   - [\<link\>](#link)
+    - [网站图标](#网站图标)
+    - [引入CSS](#引入css)
   - [\<script\>](#script)
 - [3 文本标签](#3-文本标签)
   - [\<h1\>](#h1)
@@ -154,15 +156,29 @@ HTML 文档的标题，收藏时的默认名称
 
 ## \<link>
 
-1. 网站图标
+### 网站图标
    
-   图标一般为 .ico .png .gif 格式
+图标一般为 .ico .png .gif 格式
 
-   `<link rel="icon" href="favicon.ico" type="image/x-icon" />`
+动态图片作为图标：
 
-2. 引入CSS
+`<link rel="icon" href="favicon.ico" type="image/x-icon" />`
+
+`<link rel="icon" href="1.gif" type="image/gif" >`
+
+静态图片做为图标：
+
+`<link rel="shortcut icon" href="1.png" type="image/png" />`
+
+关于 type 属性：
+
+- 这个属性被用于定义链接的内容类型。属性值应该是类似于 text/html、text/css 这样的 MIME 类型
+- MIME（多用途互联网邮件扩展）是一种用于描述除 ASCII 文本以外的其他格式文档的标准，例如音频、视频和图像。最初用于电子邮件附件，现已成为用于在任何地方定义文档类型的事实标准。
+- [MIME列表](https://www.iana.org/assignments/media-types/media-types.xhtml)
+
+### 引入CSS
    
-   `<link rel="stylesheet" href="my-css-file.css" />`
+`<link rel="stylesheet" href="my-css-file.css" />`
 
 ## \<script>
 
