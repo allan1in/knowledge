@@ -1,4 +1,5 @@
 
+- [0 资源链接](#0-资源链接)
 - [1 html介绍](#1-html介绍)
   - [文档结构](#文档结构)
   - [注释](#注释)
@@ -74,6 +75,10 @@
   - [\<thead\>](#thead)
   - [\<tbody\>](#tbody)
   - [\<tfoot\>](#tfoot)
+
+# 0 资源链接
+
+- [html 转义字符速查表](https://css-tricks.com/snippets/html/glyphs/)
 
 # 1 html介绍
 
@@ -253,6 +258,8 @@ italics，历史遗留，无语义，斜体，万不得已才使用
 underline，历史遗留，无语义，下划线，万不得已才使用
 
 ## \<a>
+
+anchor，锚
 
 `<a href="https://www.mozilla.org/zh-CN/">Mozilla 主页</a>`
 

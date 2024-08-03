@@ -2390,6 +2390,63 @@ clearfix 方法：向包含浮动内容及其本身的盒子后方插入一些�
 }
 ```
 
+更优的写法：
+
+```
+.clearfix::before,
+.clearfix::after {
+  content: '';
+  clear: both;
+  display: table;
+}
+```
+
+添加 before 伪元素，并且使用 table 的原因：
+
+> The use of `table` rather than `block` is only necessary if using `:before` to contain the top-margins of child elements.
+
+案例：
+
+[在线演示](https://codepen.io/allan1in/pen/OJemXoQ)
+
+```
+<div class="box-wrapper clearfix">
+  <div class="box">float box</div>
+  <div class="box">float box</div>
+  <div class="normal-box">normal box</div>
+</div>
+```
+
+```
+.clearfix::before,
+.clearfix::after {
+  content: '';
+  clear: both;
+  display: table;
+}
+
+.box-wrapper {
+  background-color: orange;
+}
+
+.box {
+  float: left;
+  height: 40px;
+  background-color: grey;
+  margin: 20px;
+}
+
+.normal-box {
+  height: 40px;
+  background-color: grey;
+  width: 200px;
+  margin-left: 300px;
+  margin-top: 20px;
+}
+```
+
+尝试着改变 clearfix 的写法，会发现如果缺少了 `::before`，或者使用 `display:block`，非浮动元素 normal-box 的上边距会塌陷
+
 #### overflow 方法
 
 一个替代的方案是将浮动元素父元素的 overflow 属性设置为除 visible 外的其他值，比如 `overflow:auto`
