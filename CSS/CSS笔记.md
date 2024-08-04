@@ -269,7 +269,7 @@
     - [断点](#断点)
     - [移动优先的响应式设计](#移动优先的响应式设计)
     - [真的需要媒体查询吗？](#真的需要媒体查询吗)
-  - [响应式布局技术](#响应式布局技术)
+  - [响应式布局](#响应式布局)
   - [响应式图像](#响应式图像)
   - [响应式排版](#响应式排版)
   - [视口元标签](#视口元标签)
@@ -295,6 +295,7 @@
 - [Startcounter-查询站点用户数据、查询设备市占率](http://gs.statcounter.com/)
 - [Can I Use-查询浏览器对特性的支持情况](https://caniuse.com/)
 - [clippy-在线生成裁切背景代码](https://bennettfeely.com/clippy/)
+- [linea-免费的icon](https://linea.io/)
 
 # 1 CSS 介绍
 
@@ -1849,6 +1850,7 @@ border 和 outline 很类似，但有如下区别：
 
 - outline 不占据空间，绘制于元素内容周围。
 - 根据规范，outline 通常是矩形，但也可以是非矩形的。
+- outline-offset: 3px; 可以设置轮廓与内容的间隙
 
 ```
 outline: 1px dashed red;
@@ -3269,7 +3271,7 @@ body {
 grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
 ```
 
-## 响应式布局技术
+## 响应式布局
 
 最初，只能通过浮动实现网格，解决响应式布局问题：
 
@@ -3323,7 +3325,7 @@ h1 {
 以上是解决办法。使用了calc()，如果你将vw单位加到了使用固定大小（例如em或者rem）的值，那么文本仍然是可放缩的。
 
 ## 视口元标签
-
+ 
 ```
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 ```
