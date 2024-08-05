@@ -82,6 +82,8 @@
 - [pixabay-免费图片](https://pixabay.com/)
 - [unsplash-免费图片](https://unsplash.com/)
 - [coverr-免费视频](https://coverr.co/)
+- [easings-贝塞尔曲线代码](https://easings.net/)
+- [cubic-bezier-自定义贝塞尔曲线](https://cubic-bezier.com/)
 
 # 1 html介绍
 
