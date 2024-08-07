@@ -1,3 +1,4 @@
+- [0 资源链接](#0-资源链接)
 - [1 JavaScript 介绍](#1-javascript-介绍)
   - [历史](#历史)
   - [JavaScript 实现](#javascript-实现)
@@ -82,6 +83,10 @@
     - [逗号操作符](#逗号操作符)
   - [语句](#语句-1)
     - [if](#if)
+
+# 0 资源链接
+
+- [ECMAScript® 2025 Language Specification](https://tc39.es/ecma262/)
 
 # 1 JavaScript 介绍
 

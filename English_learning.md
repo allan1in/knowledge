@@ -18,3 +18,6 @@ I was sold on em-based breakpoints.
 
 I'm adding a bounty to my question because so many prominent CSS frameworks and web developers use em-based media queries that I'm convinced there must be good reason(s) for doing so.
 
+Basically, you have all your partials stuffed into 7 different folders.
+
+Sass Boilerplate

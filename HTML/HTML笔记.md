@@ -53,6 +53,10 @@
 - [5 多媒体标签](#5-多媒体标签)
   - [\<img\>](#img)
     - [响应式图片](#响应式图片)
+      - [不同尺寸](#不同尺寸)
+      - [相同尺寸不同分辨率](#相同尺寸不同分辨率)
+  - [\<picture\>](#picture)
+    - [响应式加载图片（不同美术风格）](#响应式加载图片不同美术风格)
   - [\<figure\>](#figure)
   - [\<figcaption\>](#figcaption)
   - [\<video\>](#video)
@@ -63,8 +67,6 @@
   - [\<object\>](#object)
   - [\<embed\>](#embed)
   - [\<svg\>](#svg)
-  - [\<picture\>](#picture)
-    - [响应式加载图片](#响应式加载图片)
 - [6 表格标签](#6-表格标签)
   - [\<table\>](#table)
   - [\<tr\>](#tr)
@@ -78,6 +80,7 @@
 
 # 0 资源链接
 
+- [HTML Living Standard](https://html.spec.whatwg.org/)
 - [html 转义字符速查表](https://css-tricks.com/snippets/html/glyphs/)
 - [pixabay-免费图片](https://pixabay.com/)
 - [unsplash-免费图片](https://unsplash.com/)
@@ -511,19 +514,47 @@ sample，程序输出，等宽字体（ monospace ）
 
 ### 响应式图片
 
-在不同设备上展示不同像素的图片， srcset 与 sizes 属性
+#### 不同尺寸
 
 `<img srcset="elva-fairy-480w.jpg 480w, elva-fairy-800w.jpg 800w" sizes="(max-width: 600px) 480px, 800px" src="elva-fairy-800w.jpg" alt="Elva dressed as a fairy" />`
 
-srcset 参数格式：文件名 图片的固有宽度w
-
-sizes 参数格式：(媒体条件) 条件为真时图片要填充的插槽宽度
+- srcset 参数：文件名 图片的固有宽度w
+- sizes 参数：(媒体查询条件) 条件为真时图片要填充的插槽宽度，默认宽度
+- src 的作用：支持旧浏览器
 
 浏览器的动作：识别视口宽度，依次检查 sizes 中的媒体条件是否为真（没有条件算真），如例子中的 max-width: 600px 表示视口宽度最大为 600px ，如果为真，加载 srcset 中第一个固有宽度等于插槽宽度的图片，若没有，则加载第一个固有宽度大于插槽宽度的图片
 
+要指定在某个宽度下使用特定图像候选代表的图像资源，使用 w 宽度描述符，包含表示该宽度的数字（以像素为单位）+ 小写字母 w。例如，渲染一个 450 像素宽的图像对应的描述符字符串： 450w。指定的宽度必须是正数、非零整数，并且必须与引用图像的固有宽度相匹配。
+
+#### 相同尺寸不同分辨率
+
 `<img srcset="elva-fairy-320w.jpg, elva-fairy-480w.jpg 1.5x, elva-fairy-640w.jpg 2x" src="elva-fairy-640w.jpg" alt="Elva dressed as a fairy" />`
 
-srcset 中 1.5x 代表设备像素比（device pixel ratio），计算方式：逻辑像素/物理像素，1.5x 表示 1 个逻辑像素用 1.5 个物理像素表示，DPR越大，图像越细腻。此例中，浏览器会根据 DRP 选取合适的图片，不需要使用 sizes 属性，这样可以实现在不同分辨率下的不同图片拥有相同的宽度。
+srcset 中 1.5x 代表设备像素比（DPR, device pixel ratio），计算方式：逻辑像素/物理像素，1.5x 表示 1 个逻辑像素用 1.5 个物理像素表示，DPR 越大，图像越细腻。此例中，浏览器会根据 DRP 选取合适的图片，不需要使用 sizes 属性，这样可以实现在高分辨率下的屏幕上，图片拥有更高的像素密度（它们的宽度都是一样的，因为宽度的单位 px 是固定的（1/96 英尺））。
+
+可以使用像素密度描述符，它指定了在什么样的显示器像素密度下应用相应的图像资源。它是通过将像素密度声明为正的非零浮点值，后跟小写字母 x 来编写的。例如，要指定在像素密度是标准密度的两倍时使用相应的图像，你可以提供像素密度描述符 2x 或 2.0x
+
+## \<picture>
+
+### 响应式加载图片（不同美术风格）
+
+下面的例子可以根据视口宽度的不同加载不同尺寸的图片，与 img 响应式的不同：img 侧重于不同分辨率，picture 侧重于图片尺寸的裁剪（美术风格），目的是让图片的主题内容在小屏设备上更加突出。
+
+```
+<picture>
+  <source media="(max-width: 799px)" srcset="elva-480w-close-portrait.jpg" />
+  <source media="(min-width: 800px)" srcset="elva-800w.jpg" />
+  <img src="elva-800w.jpg" alt="Chris standing up holding his daughter Elva" />
+</picture>
+```
+
+- media 属性，媒体查询条件，满足条件则使用此图片源
+
+- srcset 属性，图片文件路径
+
+- img 标签是必须的
+
+- 为什么不用 js css 实现响应式？浏览器在执行 js css 之前，会根据 html 对图片进行预加载
 
 ## \<figure>
 
@@ -719,28 +750,6 @@ SVG 是用于描述矢量图像的标记语言，它基于 XML。
 - iframe引入方式，不建议
 
 `<iframe src="triangle.svg" width="500" height="500" sandbox><img src="triangle.png" alt="Triangle with three unequal sides" /></iframe>`
-
-## \<picture>
-
-### 响应式加载图片
-
-下面的例子可以根据视口宽度的不同加载不同尺寸的图片，与 img 响应式的不同：img 侧重于不同分辨率，picture 侧重于图片尺寸的裁剪。
-
-```
-<picture>
-  <source media="(max-width: 799px)" srcset="elva-480w-close-portrait.jpg" />
-  <source media="(min-width: 800px)" srcset="elva-800w.jpg" />
-  <img src="elva-800w.jpg" alt="Chris standing up holding his daughter Elva" />
-</picture>
-```
-
-- media 属性，媒体查询条件，满足条件则使用此图片源
-
-- srcset 属性，图片文件路径
-
-- img 标签是必须的
-
-- 为什么不用 js css 实现响应式？浏览器在执行 js css 之前，会根据 html 对图片进行预加载
 
 # 6 表格标签
 
