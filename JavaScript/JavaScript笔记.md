@@ -83,6 +83,16 @@
     - [逗号操作符](#逗号操作符)
   - [语句](#语句-1)
     - [if](#if)
+    - [do-while](#do-while)
+    - [while](#while)
+    - [for](#for)
+    - [for-in](#for-in)
+    - [for-of](#for-of)
+    - [标签、break和continue](#标签break和continue)
+    - [with](#with)
+    - [switch](#switch)
+  - [函数](#函数)
+- [3 变量、作用域与内存](#3-变量作用域与内存)
 
 # 0 资源链接
 
@@ -183,7 +193,6 @@ defer 只对外部脚本有效，会在加载完 html 后再按顺序执行 js
 ### 动态加载脚本
 
 js 中可以使用 DOM 添加 \<script> 标签，这种方式添加的 js 默认异步加载，但不建议使用
-
 
 ### \<noscript> 元素
 
@@ -843,3 +852,193 @@ let num = (5, 1, 2, 0);  // 0
 ## 语句
 
 ### if
+
+ECMAscript 会调用 Boolean() 函数将 condition 转换成布尔值
+
+最佳实践：
+
+```
+if (condition1) {
+  statement1
+} else if (condition2){
+  statement2
+} else {
+  statement3
+}
+```
+
+不要省略大括号，这样可以避免错误
+
+### do-while
+
+最佳实践：
+
+```
+do {
+  statement
+} while (expression);
+```
+
+### while
+
+最佳实践：
+
+```
+while(expression) {
+  statement
+}
+```
+
+### for
+
+最佳实践：
+
+```
+for(let i = 0; i < 10; i++) {
+  console.log(i);
+}
+```
+
+使用 let 可以将作用域固定在循环中，因为循环外用不到这个变量了
+
+无穷循环：
+
+```
+for(;;) {
+  console.log(1);
+}
+```
+
+while 循环：
+
+```
+for(;i < 10;) {
+  console.log(1);
+}
+```
+
+### for-in
+
+最佳实践：
+
+```
+for (const propName in window) {
+  console.log(propName);
+}
+```
+
+如上，遍历了一个 window 对象的所有属性，遍历的顺序因浏览器而异
+
+为了保证遍历的变量 propName 不被修改，推荐使用 const
+
+如果遍历的变量是 null 或 undefined，不会执行循环
+
+### for-of
+
+最佳实践：
+
+```
+for (const element of [2,4,6,8]) {
+  console.log(element);
+}
+```
+
+for-of 会按照可迭代对象的 next() 方法产生值的顺序迭代元素
+
+如果尝试迭代的元素不支持迭代，会抛出错误
+
+### 标签、break和continue
+
+- break：退出当前这一层的循环
+- continue：跳过当前这一层的本次循环
+
+label 和 break 的配合使用：
+
+```
+outermost: 
+for (let i = 0; i < 10; i++) {
+  for (let j = 0; j < 10; j++) {
+    if (i == 5 && j == 5) {
+      break outermost;
+    }
+  }
+}
+```
+
+如上，创建了一个名为 outermost 的 label，当最内层的循环执行到 break outermost; 时，会退出到标签 outermost 的位置（即直接退出到最外层的循环）
+
+标签可以和 break 或 continue 配合，退出或者跳过到标签所指定的位置
+
+### with
+
+示例如下：
+
+```
+let qs = location.search;
+let hostName = location.hostname;
+let url = location.href;
+```
+
+这段代码每一次赋值都有重复的 location 对象，可以使用 with 简化代码：
+
+```
+with(location) {
+  let qs = search;
+  let hostName = hostname;
+  let url = href;
+}
+```
+
+严格模式不允许 with
+
+### switch
+
+基本用法：
+
+```
+switch(i) {
+  case 25:
+    console.log(25);
+    break;
+  case 35:
+    console.log(25);
+    break;
+  default:
+    console.log("other");
+}
+```
+
+一个结果有多个条件（最好写明注释是故意忽略 break）：
+
+```
+switch(i) {
+  case 25:
+    /* skip */
+  case 35:
+    console.log(25);
+    break;
+  default:
+    console.log("other");
+}
+```
+
+ECMAscript 中 switch 的特点：
+
+- 可以接收任何数据类型
+- 在 case 比较时会使用全等操作符（===），因此不会强制转换数据类型
+
+## 函数
+
+基本写法：
+
+```
+function functionName(arg0,arg1,...,argN) {
+  statements
+}
+```
+
+只要遇到 return 语句，函数会立即停止执行
+
+最佳实践：要么有返回值，要不没有返回值（默认返回 undefined），只在某个条件下返回值的函数，在调试时会很麻烦
+
+# 3 变量、作用域与内存
