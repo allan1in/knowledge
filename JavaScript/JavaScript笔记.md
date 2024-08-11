@@ -136,8 +136,22 @@
     - [Boolean](#boolean-1)
     - [Number](#number-1)
     - [String（TODO）](#stringtodo)
-      - [JavaScript 字符](#javascript-字符)
+      - [JavaScript 字符（TODO）](#javascript-字符todo)
+      - [normalize()（TODO）](#normalizetodo)
+      - [字符串操作方法](#字符串操作方法)
   - [单例内置对象](#单例内置对象)
+    - [Global](#global)
+      - [URL 编码方法](#url-编码方法)
+      - [eval()](#eval)
+      - [属性](#属性)
+      - [window 对象](#window-对象)
+    - [Math](#math)
+      - [属性](#属性-1)
+      - [最大值最小值](#最大值最小值)
+      - [舍入方法](#舍入方法)
+      - [随机数](#随机数)
+      - [其他方法](#其他方法)
+- [5 集合引用类型](#5-集合引用类型)
 
 # 0 资源链接
 
@@ -509,7 +523,7 @@ let float = 3-e4; //等于 0.0003
 ```
 let a = 0.1;
 let b = 0.2;
-console.log(a + b == 0.3); //结果为 false
+console.log(a + b == 0.3); // 结果为 false
 ```
 
 因为 JS 采用的 IEEE 754 数值规则：
@@ -1628,6 +1642,154 @@ let stringObject = new String("hello");
 
 String 类型提供了很多方法来解析或操作字符串：
 
-#### JavaScript 字符
+#### JavaScript 字符（TODO）
+
+字符：一个字符由 16 个码元（code unit）组成
+
+length 属性，表示字符串包含多少个 16 位码元（字符）
+
+charAt() 方法，参数为索引值，根据索引值返回字符
+
+JS 字符串的编码：采用 UCS-2 和 UTF-16，[更多关于编码的内容](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/)
+
+#### normalize()（TODO）
+
+规范化字符
+
+#### 字符串操作方法
+
+
 
 ## 单例内置对象
+
+内置对象：由 ECMAscript 实现，与宿主环境无关，并在程序开始执行时就存在的对象
+
+开发者不需要显示地实例化内置对象，比如：Object Array String
+
+### Global
+
+全局函数和全局变量都会成为 Global 对象的属性，isFinite() parseInt() parseFloat() 都属于 Global 对象
+
+#### URL 编码方法
+
+URL编码将字符转换成可以通过 Internet 传输的格式，URL 只能使用 ASCII 字符集通过 Internet 发送
+
+URI(Uniform Resource Identifier)：统一资源标识符
+
+URL(Uniform Resource Locator)：统一资源定位器
+
+[ASCII 百分比编码](https://zh.wikipedia.org/wiki/%E7%99%BE%E5%88%86%E5%8F%B7%E7%BC%96%E7%A0%81)
+
+编码方法：
+
+- encodeURI() 用于对整个 URI 编码，不会编码特殊字符
+- encodeURIComponent() 用于编码 URI 种单独的组件，会对所有特殊字符也进行编码
+
+```
+let uri = "http://www.wrox.com/illegal value.js#start";
+
+encodeURI(uri);
+// http://www.wrox.com/illegal%20value.js#start
+
+encodeURIComponent(uri);
+// http%3A%2F%2Fwww.wrox.com%2Fillegal%20value.js%23start
+```
+
+解码方法：
+
+- decodeURI()，对 encodeURI() 的结果解码
+- decodeURIComponent()，对 encodeURIComponent() 的结果解码
+
+#### eval()
+
+这个方法是一个代码解释器，参数是一个 ECMAscript 字符串
+
+```
+eval("console.log('hi')");
+// 以上代码等价于：
+console.log("hi");
+```
+
+eval() 内部可以正常访问外部定义的变量，在 eval() 内部定义的函数外部也可以访问，但 eval() 内部定义的变量外部访问会报错。
+
+eval() 解析字符串的能力很强大，可以动态创建函数，可以将 JSON 字符串直接解析成 JS 对象，但是它很危险，容易受到 XSS 攻击，让恶意用户插入代码。***不要使用 eval()***
+
+#### 属性
+
+Global 还包含了许多属性，包括一些特殊值：undefined NaN Infinity，以及包装类和一些引用类型的构造函数，还有各种 Erorr 对象的构造函数
+
+#### window 对象
+
+ECMAscript 没有提供直接访问 Global 对象的方式，但浏览器将 Global 对象进行实现，即 window 对象，因此全局变量和函数都成为了 window 的属性
+
+当一个函数没有明确指定 this 时，this 值等于 Global 对象：
+
+```
+// 创建函数并立即调用
+let global = function() {
+  return this;
+}();
+```
+
+### Math
+
+Math 用于数学计算
+
+#### 属性
+
+- PI，圆周率
+- E，自然对数的基数 e
+- LN10，LN2，LOG2E，LOG10E 等对数
+- SQRT1_2，SQRT2 等平方根
+
+#### 最大值最小值
+
+min() 和 max() 接受多个数值，返回其中最大或最小值
+
+```
+let max = Math.max(1,3,4,2,5);  // 5
+let vals = [4,2,3,5,1];
+let min = Math.min(...vals);    // 1
+```
+#### 舍入方法
+
+- ceil() 向上舍入取整
+- floor() 向下舍入取整
+- round() 四舍五入取整
+- fround() 返回数值最接近的单精度（32位）浮点值表示
+
+#### 随机数
+
+random() 返回 0-1 之间的一个随机数，区间左闭右开
+
+随机选取一个整数，区间从 first_possible_value 开始，区间长度为 total_number_of_choice，左闭右开：
+
+```
+number = Math.floor(Math.random() * total_number_of_choice + first_possible_value)
+```
+
+一般情况，给定的参数是可选区间的左右边界，所以可以封装为函数：
+
+```
+function selectFrom(low, up) {
+  let choice = up - low + 1;
+  return Math.floor(Math.random() * choice + low);
+}
+
+// 使用 selectFrom() 方法，在数组中随机选择一个值
+
+let colors = ["red", "green" ,"blue"];
+let color = colors[selectFrom(0, colors.length - 1)];
+```
+
+#### 其他方法
+
+- abs() 绝对值
+- pow(x, n) 返回 x 的 n 次方
+- sqrt() 平方根
+- cbrt() 立方根
+- exp(x, n) 返回 x 的 n 次幂 
+- 各种三角函数...
+
+# 5 集合引用类型
+
