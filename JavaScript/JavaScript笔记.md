@@ -50,7 +50,8 @@
         - [标签函数](#标签函数)
       - [模板-原始字符串](#模板-原始字符串)
     - [symbol（TODO）](#symboltodo)
-    - [object (TODO)](#object-todo)
+    - [Object](#object)
+      - [属性和方法](#属性和方法)
   - [操作符](#操作符)
     - [一元操作符](#一元操作符)
       - [递增与递减](#递增与递减)
@@ -119,7 +120,24 @@
       - [隐藏类和删除操作](#隐藏类和删除操作)
 - [4 基本引用类型](#4-基本引用类型)
   - [Date](#date)
-    - [创建实例](#创建实例)
+    - [构造函数](#构造函数)
+      - [Date.parse()](#dateparse)
+      - [Date.UTC()](#dateutc)
+      - [Date.now()](#datenow)
+    - [继承的方法](#继承的方法)
+    - [日期格式化](#日期格式化)
+    - [get/set 方法](#getset-方法)
+  - [RegExp (TODO)](#regexp-todo)
+  - [原始值包装类](#原始值包装类)
+    - [包装类的创建](#包装类的创建)
+      - [自动创建](#自动创建)
+      - [Object() 创建包装类](#object-创建包装类)
+      - [Number() 与 new Number()](#number-与-new-number)
+    - [Boolean](#boolean-1)
+    - [Number](#number-1)
+    - [String（TODO）](#stringtodo)
+      - [JavaScript 字符](#javascript-字符)
+  - [单例内置对象](#单例内置对象)
 
 # 0 资源链接
 
@@ -641,15 +659,27 @@ String.raw`first line\nsecond line`;
 
 确保对象的属性使用唯一标识符，不会发生冲突
 
-### object (TODO)
+### Object
 
-一组功能和数据的集合
+对象类型 Object，一组功能和数据的集合
 
-开发者可以创建 object 实例，然后再给对象添加方法或属性
+开发者可以通过 new 关键字创建 Object 对象，然后再给对象添加方法或属性
 
 ```
 let o = new Object();
 ```
+
+Object 作为所有对象的基类，其他对象都继承以下的属性或方法，但是 BOM 和 DOM 的对象可以不遵守 ECMAscript 规则，所以有些对象可能不会继承这些方法
+
+#### 属性和方法
+
+- constructor：创建当前对象的函数，上面例子中就是 Object()
+- hasOwnProperty(proptypeName)：用于判断当前对象实例（不是原型）上是否存在名为 proptypeName（字符串或符号） 的属性
+- isProptypeOf(object)：判断当前对象是否为另一个对象的原型
+- propertyIsEnumerable(proptypeName)：判断给定属性是否可以使用 for-in 枚举，参数必须是字符串
+- toLocaleString()：返回对象的字符串表示，该字符串反应对象所在的本地化执行环境
+- toString()：返回对象的字符串表示
+- valueOf()：返回对象的字符串、数值或布尔值，通常与 toString() 返回值相同，用于操作符比较大小会调用这个方法
 
 ## 操作符
 
@@ -1353,7 +1383,7 @@ ECMAscript 提供了许多像 Date 这样的原生引用类型，帮助开发者
 
 ECMAscript 参考了 Java 早期的 java.util.Date，因此 Date 将日期保存为自协调世界时（UTC，Universal Time Coordinated）时间 1970.01.01 00:00:00 至今所经历的毫秒数，这样 Date 类型可以表示从 1970 年 1 月 1 日 前后 285616 年的日期
 
-### 创建实例
+### 构造函数
 
 以下代码创建了一个 Date 对象，不传参的情况下，创建的是当前的时间
 
@@ -1363,8 +1393,241 @@ let now = new Date();
 
 如果要创建特定的时间，需要方法的协助：Date.parse() 和 Date.UTC()
 
-Date.parse() 接受一个符合要求格式的字符串，尝试将其转换为毫秒数，以下是其支持的日期格式：
+#### Date.parse() 
+
+接受一个符合要求格式的字符串，尝试将其转换为毫秒数（不符合规则返回 NaN），以下是其支持的日期格式：
 
 - "5/23/2019"
 - "May 23, 2019"
-- "Tue May 23 2019 00:00:00 GMT-0700"
+- "Tue May 23 2019 00:00:00 GMT-0700" (GMT，GreenwichMeanTime，格林威治标准时间，-0700表示是西七区的时间)
+- "2019-05-23T00:00:00Z"（Z表示零时区，如果是+8表示东八区）
+
+```
+// 以下两种方式是等价的
+let now = new Date("5/23/2019");
+let now = new Date(Date.parse("5/23/2019"));
+```
+
+#### Date.UTC() 
+
+可以接受多个参数：年，月（0-11），日（1-31），时（0-23），分，秒，毫秒，其中年月是必须的，其他可选
+
+```
+Date.UTC(Date.UTC(2000,0));             // 2000-01
+Date.UTC(Date.UTC(2005,3,4,14,33,44));  // 2005-04-04 14:33:44
+```
+
+当使用 Date() 构造函数隐式调用 Date.UTC() 时，创建的是当地时区的时间，而直接调用 Date.UTC() 创建的是 GMT 时间
+
+#### Date.now()
+
+返回当前时间的毫秒值，可以用于在代码中计时：
+
+```
+let start = Date.now();
+
+doSomething();
+
+let finish = Date.now();
+
+duration = finish - start;
+```
+
+### 继承的方法
+
+- toLocaleString()，会返回浏览器环境的时间，格式通常包含 AM PM，而不包含时区，具体格式因浏览器而不同
+- toString()，通常返回带时区的时间格式，时间也是 24 小时制的
+- valueOf()，返回毫秒值，可以通过这个方法比较时间先后
+
+### 日期格式化
+
+以下格式化方法的具体格式因浏览器而异
+
+- toDateString()，周几，年月日
+- toTimeString()，时分秒，时区
+- toLocaleDateString()，本地的时区，时分秒
+- toLocaleTimeString()，时分秒
+- toUTCString()，UTC时间（自协调世界时）
+
+### get/set 方法
+
+这类方法用于获取（get）或设置（set）具体的时间，每个 set 方法都有对应的 get 方法，故以下对  get 方法省略，并且每个 set 方法都有对应的 setUTC 方法，比如 `setHours(0-23)` 对应的 setUTC 方法 `setUTCHours(0-23)` ，以下也对 setUTC 方法省略
+
+- setFullYear(四位数)
+- setMonth(0-11)，大于11则加年
+- setDate(1-31)，大于31则加月
+- setHours(0-23)，大于23则加天
+- setMinutes(0-59)，大于59则加时
+- setSeconds(0-59)，大于59则加分
+- setMilliseconds(0-59)，大于59则加秒
+
+特殊的方法：
+
+- getDay()，周几（返回0-6），有对应的 getUTC 方法，没有对应 set 方法
+- setTime(毫秒值)，设置日期毫秒值，有对应的 get 方法，没有 getUTC 方法
+- getTimezoneOffset()，返回本地时区与UTC时间的偏移量（分钟）
+
+## RegExp (TODO)
+
+正则表达式：
+
+```
+let expression = /pattern/flags;
+```
+
+pattern 是正则表达式，flags 标记用于控制表达式的模式（可以一次使用多个标记），flags 包括以下标记：
+
+- g：全局模式，不是找到第一个匹配内容就结束
+- i：不区分大小写
+- m：多行模式，查找到一行末尾时会继续查找
+- y：粘附模式，表示只查找从 lastIndex 开始之后的字符串
+- u：Unicode 模式，启用 Unicode 匹配
+- s：dotAll 模式，元字符 . 匹配任何字符（包括 \n \r）
+
+## 原始值包装类
+
+ECMAscript 提供了 3 种特殊的引用类型：Boolean、Number、String
+
+### 包装类的创建
+
+#### 自动创建
+
+每当使用某个原始值的方法或属性时，会自动创建一个相应类型的对象，从而暴露原始值的各种方法：
+
+```
+let s1 = "text";
+let s2 = s1.substring(2);
+```
+
+执行到第二行时包含以下操作：
+
+1. 创建 String 类型的实例
+2. 调用其 substring() 方法
+3. 销毁实例
+
+这三步相当于以下代码：
+
+```
+let ob = new String("text");
+let s2 = ob.substring(2);
+ob = null;
+```
+
+值得注意的是，这个自动创建的对象实例，不能直接给原始数据类型添加属性，因为自动创建的包装类实例会在执行完毕后被销毁：
+
+```
+let s1 = "text";
+s1.color = "red";
+console.log(s1.color); // undefined
+```
+
+可以显示地创建包装对象，但是不建议这么做，因为这样无法区分原始值和引用值，对包装对象实例使用 typeof 返回的都是 object
+
+#### Object() 创建包装类
+
+```
+let obj = new Object("text");
+console.log(obj instanceof String); // true
+```
+
+#### Number() 与 new Number()
+
+```
+let val = "25";
+let number = Number(val);
+console.log(typeof number); // number
+let obj = new Number(val);
+console.log(typeof obj);    // object
+```
+
+### Boolean
+
+创建一个 Boolean 对象，使用构造函数并传入 true 或 false ：
+
+```
+let booleanObject = new Boolean(true);
+```
+
+重写方法：
+
+- valueOf()，返回原始值 true 或 false
+- toString()，返回字符串 "true" 或 "false"
+
+强烈建议 ***永远不要使用 Boolean 包装类*** ，而是使用原始值，因为包装类容易和原始值混淆：
+
+```
+let falseObj = new Boolean(false);
+let result = falseObj && true;    // true
+
+let falseVal = new Boolean(false);
+let result = falseVal && true;    // false
+```
+
+### Number
+
+创建一个 Number 对象，使用构造函数传入数字：
+
+```
+let numberObject = new Number(10);
+```
+
+重写方法：
+
+- valueOf()，返回原始数值
+- toString()，返回数值字符串，并且可以传入数字参数，将返回转换成相应的进制数：
+
+```
+let num = 10;
+num.toString(2);  // "1010"
+num.toString(8);  // "12"
+num.toString(10); // "10"
+num.toString(16); // "a"
+```
+
+**格式化方法**：
+
+toFixed()，参数是数值，返回值根据传入的参数决定返回的小数位数，如果指定的小数位数小于原本的小数位数，那么进行四舍五入
+
+toExponential()，返回科学计数法格式（1.0e+1 表示 10），参数是数值，表示小数的位数
+
+toPrecision()，参数是数值，表示希望返回结果的总位数（正数位和小数位的总和），方法会根据参数情况选择调用 toFixed() 还是 toExponential()，返回合适的结果：
+
+```
+let num = 99;
+num.toPrecision(1);   // "1e+2"
+num.toPrecision(2);   // "99"
+num.toPrecision(3);   // "99.0"
+```
+
+和 Boolean 一样，也不建议使用 Number 包装类
+
+**其他方法**：
+
+isInteger()，判断一个数值是否是整数
+
+```
+Number.isInteger(1);    // true
+Number.isInteger(1.00); // true
+Number.isInteger(1.01); // false
+```
+
+isSafeInteger()，判断一个整数是否在保存范围之内（Number.MIN_SAFE_INTEGER: -2^53+1, Number.MAX_SAFE_INTEGER: 2^53+1）
+
+### String（TODO）
+
+创建一个 String 对象，使用构造函数传入字符串：
+
+```
+let stringObject = new String("hello");
+```
+
+重写方法：
+
+- valueOf()，返回字符串
+- toString()，返回字符串
+
+String 类型提供了很多方法来解析或操作字符串：
+
+#### JavaScript 字符
+
+## 单例内置对象
