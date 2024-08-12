@@ -139,6 +139,15 @@
       - [JavaScript 字符（TODO）](#javascript-字符todo)
       - [normalize()（TODO）](#normalizetodo)
       - [字符串操作方法](#字符串操作方法)
+      - [字符串位置方法](#字符串位置方法)
+      - [字符串包含方法](#字符串包含方法)
+      - [字符串去除空格](#字符串去除空格)
+      - [字符串填充方法](#字符串填充方法)
+      - [字符串迭代与解构（TODO）](#字符串迭代与解构todo)
+      - [字符串大小写转换](#字符串大小写转换)
+      - [字符串模式匹配方法（TODO）](#字符串模式匹配方法todo)
+      - [比较字母顺序](#比较字母顺序)
+      - [HTML 方法](#html-方法)
   - [单例内置对象](#单例内置对象)
     - [Global](#global)
       - [URL 编码方法](#url-编码方法)
@@ -152,6 +161,7 @@
       - [随机数](#随机数)
       - [其他方法](#其他方法)
 - [5 集合引用类型](#5-集合引用类型)
+  - [Object](#object-1)
 
 # 0 资源链接
 
@@ -1658,7 +1668,169 @@ JS 字符串的编码：采用 UCS-2 和 UTF-16，[更多关于编码的内容](
 
 #### 字符串操作方法
 
+concat()，连接字符串，可接受多个字符串参数按顺序进行拼接（拼接多个字符串使用 + 更方便）
 
+```
+let str = "hello";
+let result = str.concat(" world", "!"); // "hello world!"
+```
+
+slice()，提取子字符串，一个参数左闭，两个参数左闭右开，参数为负数则转换为长度加上此负数
+
+```
+let str = "hello world";
+
+str.slice(3);       // lo world
+str.slice(3, 7);    // lo w
+str.slice(-3);      // rld
+str.slice(3, -4);   // lo w
+```
+
+substr()，提取子字符串，一个参数左闭，两个参数：第一个参数左闭、另一个参数是区间大小，第一个参数为负数则转换为长度加上此负数，第二个参数为负数则转换为 0 （区间长度为 0）
+
+```
+let str = "hello world";
+
+str.substr(3);      // lo world
+str.substr(3, 7);   // lo worl
+str.substr(-3);     // rld
+str.substr(3, -4);  // ""
+```
+
+substring()，提取子字符串，一个参数左闭，两个参数左闭右开，参数若是负数都转换为 0，特性：两个参数的情况，第二个参数若小于第一个参数，那么以第二个参数为开始位置，第一个参数为结束位置
+
+```
+let str = "hello world";
+
+str.substring(3);     // lo world
+str.substring(3, 7);  // lo w
+str.substring(-3);    // hello world
+str.substring(3, -4); // hel
+```
+
+#### 字符串位置方法
+
+indexOf()，传入字符串，从头开始，找到字符串第一次出现的位置，返回下标，没有则返回 -1。第二参数可选，表示从此下标位置开始寻找
+
+```
+let str = "hello world";
+
+str.indexOf("o"); // 4
+str.indexOf("o", 6); // 7
+```
+
+lastIndexOf()，传入字符串，从尾部开始，找到字符串第一次出现的位置，返回下标，没有则返回 -1。第二参数可选，表示从此下标位置开始寻找
+
+```
+let str = "hello world";
+
+str.lastIndexOf("o"); // 7
+str.lastIndexOf("o", 6); // 4
+```
+
+找到所有的目标子字符串：
+
+```
+let str = "3213217894392693847252";
+let postitions = new Array();
+let pos = str.indexOf("3");
+
+while(pos > -1) {
+  positions.push(pos);
+  pos = str.indexOf("3", pos + 1);
+}
+```
+
+#### 字符串包含方法
+
+startsWith()，判断字符串开头是否有指定的子字符串，接受一个字符串，返回布尔值，表示是否包含
+
+```
+let str = "foobarbaz";
+
+str.startsWith("foo"); // true
+```
+
+endsWith()，判断字符串结尾是否有指定的子字符串，接受一个字符串，返回布尔值，表示是否包含
+
+```
+let str = "foobarbaz";
+
+str.endsWith("baz"); // true
+```
+
+includes()，判断字符串中是否有指定的子字符串，接受一个字符串，返回布尔值，表示是否包含
+
+```
+let str = "foobarbaz";
+
+str.includes("bar"); // true
+```
+
+#### 字符串去除空格
+
+trim()，清除字符串开始和末尾的空格
+
+trimLeft()，清除字符串开始的空格
+
+trimRight()，清除字符串末尾的空格
+
+#### 字符串填充方法
+
+repeat()，接受数值参数，表示复制多少次
+
+```
+let str = "na ";
+str.repeat(4);    // "na na na na "
+```
+
+padStart()，将字符串以指定内容填充到指定长度（填充在开头），第一个参数是填充到的长度，第二个参数是要填充的内容（默认填充空格），如果填充长度小于原本长度，返回原字符串
+
+```
+let str = "hi";
+str.padStart(8);        // "      hi"
+str.padStart(8, ".");   // "......hi"
+str.padStart(8, "abc"); // "abcabchi"
+```
+
+padEnd()，填充在末尾，其他和 padStart() 一样
+
+```
+let str = "hi";
+str.padEnd(8);        // "hi      "
+str.padEnd(8, ".");   // "hi......"
+str.padEnd(8, "abc"); // "hiabcabc"
+```
+
+#### 字符串迭代与解构（TODO）
+
+#### 字符串大小写转换
+
+toLowerCase()，将字符串转换为小写
+
+toUpperCase()，将字符串转换为大写
+
+toLocaleLowerCase()，将字符串以当地语言的规则转换为小写
+
+toLocaleUpperCase()，将字符串以当地语言的规则转换为大写
+
+#### 字符串模式匹配方法（TODO）
+
+#### 比较字母顺序
+
+localeCompare() 可以根据所在地区语言（不一定是英文字母）比较字母顺序，靠前返回 1，相同返回 0，靠后返回 -1
+
+```
+let str = "yellow";
+
+str.localeCompare("brick");   // 1
+str.localeCompare("yellow");   // 0
+str.localeCompare("zoo");   // -1
+```
+
+#### HTML 方法
+
+早期浏览器提供了辅助生成 HTML 标签的方法，现在基本上已经没人使用了
 
 ## 单例内置对象
 
@@ -1792,4 +1964,8 @@ let color = colors[selectFrom(0, colors.length - 1)];
 - 各种三角函数...
 
 # 5 集合引用类型
+
+## Object
+
+Object 没有多少功能，但是很适合用于临时存储交换数据
 
