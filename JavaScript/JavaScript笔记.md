@@ -213,6 +213,32 @@
       - [reduceRight()](#reduceright)
   - [定型数组（TODO）](#定型数组todo)
   - [Map（ES6）](#mapes6)
+    - [创建](#创建)
+    - [增删改查](#增删改查)
+      - [set()](#set)
+      - [has()](#has)
+      - [get()](#get)
+      - [delete()](#delete)
+      - [clear()](#clear)
+      - [size](#size)
+    - [关于 key 的匹配性](#关于-key-的匹配性)
+    - [顺序与迭代](#顺序与迭代)
+      - [entries()](#entries)
+      - [\[Symbol.iterator\]](#symboliterator)
+      - [keys()](#keys)
+      - [values()](#values)
+      - [forEach()](#foreach-1)
+    - [Object VS. Map](#object-vs-map)
+  - [WeakMap（TODO）](#weakmaptodo)
+    - [与 Map 的区别](#与-map-的区别)
+    - [弱键（TODO）](#弱键todo)
+  - [Set](#set-1)
+    - [与 Map 的区别](#与-map-的区别-1)
+    - [定义正式集合操作（TODO）](#定义正式集合操作todo)
+  - [WeakSet（TODO）](#weaksettodo)
+- [7 迭代器与生成器（TODO）](#7-迭代器与生成器todo)
+- [8 面向对象](#8-面向对象)
+  - [理解对象](#理解对象)
 
 # 0 资源链接
 
@@ -2190,7 +2216,7 @@ console.log(ary.length);  // 5
 console.log(ary);         // [,,,,,]
 ```
 
-ES6 新增方法（比如 for-of、数组解构）将这些空位当成存在的元素，值为 undefined
+ES6 新增方法（比如 for-of、数组展开）将这些空位当成存在的元素，值为 undefined
 
 ES6 之前的方法（比如 map() join()）会有其他的行为（比如忽略空位，将空位视为空字符串）
 
@@ -2616,4 +2642,227 @@ vals.reduce((prev, curr, index, array) => prev + curr);
 ## 定型数组（TODO）
 
 ## Map（ES6）
+
+Map，映射
+
+Map 用于存储键值对：`[["key", "value"], ["key", "value"]... ]`
+
+ES6 之前，使用 Object 存储键值对，所以 Map 的大多数特性都可以通过 Object 实现
+
+### 创建
+
+new Map() 构造函数创建 Map：
+
+```
+// 创建空 Map
+const m = new Map();
+
+// 使用嵌套数组初始化映射
+const m = new Map([
+  ["k1", "v1"],
+  ["k2", "v2"],
+  ["k3", "v3"]
+]);
+
+// 使用自定义迭代器初始化映射
+const m = new Map({
+  [Symbol.iterator]: function*(){
+    yield ["k1", "v1"],
+    yield ["k2", "v2"],
+    yield ["k3", "v3"]
+  }
+});
+
+// 映射期待的键值对，无论是否提供
+const m = new Map([[]]);
+alert(m.has(undefined));  // true
+alert(m.get(undefined));  // undefined
+```
+
+### 增删改查
+
+#### set()
+
+接收两个字符串参数，作为新的键值对，返回值是新的 Map 对象，因此可以连续多个 set 操作
+
+```
+const m = new Map();
+m.set("key1", "val1").set("key2", "val2");
+```
+
+#### has()
+
+传入 key 参数，查询 Map 中是否有某个键值对，返回布尔值
+
+#### get()
+
+传入 key 参数，返回 Map 中 key 相匹配的 value
+
+#### delete()
+
+传入 key 参数，删除匹配的键值对，删除成功返回 true，删除失败返回 false
+
+#### clear()
+
+删除 Map 中所有键值对
+
+#### size
+
+Map 的属性，返回 Map 中键值对的个数
+
+### 关于 key 的匹配性
+
+Map 的键可以使用任何数据类型，Map 内部会使用 SameValueZero 比较（内部定义，语言中无法使用），基本相当于严格对象相等来检查键的匹配性，Map 的值也可以是任何数据类型
+
+```
+const functionKey = function() {};
+const m = new Map();
+m.set(functionKey, "val1");
+m.get(function(){});    
+// undefined
+// 意味着使用 SameValueZero 比较 key，独立的对象实例不会冲突
+```
+
+如果 key 是集合或数组等引用类型，假如修改集合或数组内容，key 值不会改变，仍然可以访问到
+
+SameValueZero 比较也会出现一些冲突：
+
+```
+const m = new Map();
+const a = 0/"",
+      b = 0/"",
+      pz = +0,
+      nz = -0;
+
+alert(a === b);     // false
+alert(pz === nz);   // true
+
+m.set(a, "vala");
+m.set(pz, "valpz");
+
+alert(m.get(b));    // vala
+alert(m.get(nz));   // valpz
+```
+
+关于 JS 中[相等性介绍](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Equality_comparisons_and_sameness)
+
+### 顺序与迭代
+
+Map 会维护键值对的插入顺序
+
+Map 实例会提供一个迭代器，能以插入顺序生成 [key, value] 形式的数组，有两种方式获取这个迭代器：
+
+#### entries()
+
+```
+const m = new Map([
+  ["k1", "v1"],
+  ["k2", "v2"],
+  ["k3", "v3"]
+]);
+
+for(let pair of m.entries()){
+  alert(pair);
+}
+// k1, v1
+// k2, v2
+// k3, v3
+```
+
+#### [Symbol.iterator]
+
+```
+for(let pair of m[Symbol.iterator]){
+  alert(pair);
+}
+// k1, v1
+// k2, v2
+// k3, v3
+```
+
+#### keys()
+
+并且 Map 实例还提供了 key 的迭代器：
+
+```
+for(let key of m.keys()){
+  alert(key);
+}
+// k1
+// k2
+// k3
+```
+
+在对 m.keys() 的遍历中，无法修改 key 的值，但是，如果 key 时对象，那么可以修改对象内部的属性值
+
+#### values()
+
+以及 value 的迭代器：
+
+```
+for(let value of m.values()){
+  alert(value);
+}
+// v1
+// v2
+// v3
+```
+
+#### forEach()
+
+不使用迭代器？回调方式：
+
+```
+m.forEach((val, key) => alert(`${key} -> ${val}`));
+// k1 -> v1
+// k2 -> v2
+// k3 -> v3
+```
+
+forEach() 接收两个参数，第一个参数是函数，第二个参数可选，是一个指定 this 值的对象
+
+### Object VS. Map
+
+1. 内存占用，Map WIN!
+2. 插入性能，Map WIN!
+3. 查找速度，Object WIN!
+4. 删除性能，Map WIN!
+
+## WeakMap（TODO）
+
+弱映射，API 是 Map 的子集
+
+### 与 Map 的区别
+
+增删改查的方法和 Map() 一致
+
+WeakMap 的 key，只允许是 Object 类型，或者继承自 Object，否则会抛出错误 TypeError
+
+### 弱键（TODO）
+
+WeakMap 的 key 的引用不属于正式的引用，这意味着 key 的引用不会阻止垃圾回收。但是 value 的引用是正式的引用。只要 key 存在，键值对就会存在于 WeakMap 中，因此就不会被当作垃圾回收
+
+## Set
+
+Set，集合，像是增强的 Map，并且大部分 API 是共有的
+
+### 与 Map 的区别
+
+Set 存储的不再是键值对，而是一个值（值就是键，键就是值）
+
+增添方法不同于 Map 中的 set()，而是 add()，其他特性一致
+
+Set 的迭代器没有 keys()，也有 entries()，不过 entries() 返回的是两个重复的值：`[value, value]`，其他迭代方式都一致
+
+### 定义正式集合操作（TODO）
+
+可以自定义关于 Set 的操作
+
+## WeakSet（TODO）
+
+# 7 迭代器与生成器（TODO）
+
+# 8 面向对象
+
+## 理解对象
 
