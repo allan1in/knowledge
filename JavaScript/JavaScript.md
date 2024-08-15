@@ -239,6 +239,27 @@
 - [7 迭代器与生成器（TODO）](#7-迭代器与生成器todo)
 - [8 面向对象](#8-面向对象)
   - [理解对象](#理解对象)
+    - [属性的类型](#属性的类型)
+      - [数据属性](#数据属性)
+        - [内部特性](#内部特性)
+        - [delete 操作符](#delete-操作符)
+        - [修改特性](#修改特性)
+      - [访问器属性](#访问器属性)
+        - [内部特性](#内部特性-1)
+    - [定义多个属性](#定义多个属性)
+    - [读取属性的特性](#读取属性的特性)
+    - [合并对象（ES6）](#合并对象es6)
+    - [is()（ES6）](#ises6)
+    - [语法糖（ES6）](#语法糖es6)
+      - [属性值简写](#属性值简写)
+      - [可计算属性](#可计算属性)
+      - [简写方法名](#简写方法名)
+    - [对象解构（ES6）](#对象解构es6)
+      - [复制对象](#复制对象)
+      - [嵌套解构](#嵌套解构)
+      - [部分解构](#部分解构)
+      - [参数解构](#参数解构)
+  - [创建对象](#创建对象)
 
 # 0 资源链接
 
@@ -2865,4 +2886,444 @@ Set 的迭代器没有 keys()，也有 entries()，不过 entries() 返回的是
 # 8 面向对象
 
 ## 理解对象
+
+可以将对象想象成一个列表，列表中的内容都是键值对，值可以是属性或函数
+
+可以通过 new Object() 创建新的对象实例，也可以使用对象字面量（大括号）创建实例
+
+### 属性的类型
+
+ECMA-262 规定了一些 ***内部特性*** 来描述属性的特征，这些特性不能被开发者访问到，为了标识内部特性，采用 `[[Value]]` 的方式表示内部特性
+
+属性可以分两类：数据属性、访问器属性
+
+#### 数据属性
+
+##### 内部特性
+
+- [[Configurable]]：表示属性是否可以通过 delete 删除并重新定义，是否可以修改这个属性的特性，是否可以把属性改为访问器属性，默认情况，直接定义在对象上的属性的这个特性值都为 true
+- [[Enumerable]]：表示属性是否可以通过 for-in 循环返回，默认情况，直接定义在对象上的属性的这个特性值都为 true
+- [[Writable]]：表示属性的值是否可以被修改，默认情况，直接定义在对象上的属性的这个特性值都为 true
+- [[Value]]：包含属性的值，默认是 undefined
+
+例如：
+
+```
+let person = {
+  name: "lin";
+}
+```
+
+以上代码所创建的 name 属性，他的 [[Configurable]]、[[Enumerable]]、[[Writable]] 都为 true，而 [[Value]] 的值是 lin
+
+##### delete 操作符
+
+delete 运算符用于删除对象的一个属性；如果该属性的值是一个对象，并且没有更多对该对象的引用，该属性所持有的对象最终会自动释放。
+
+```
+const Employee = {
+  firstname: 'Maria',
+  lastname: 'Sanchez',
+};
+
+console.log(Employee.firstname);
+// Expected output: "Maria"
+
+delete Employee.firstname;
+
+console.log(Employee.firstname);
+// Expected output: undefined
+```
+
+##### 修改特性
+
+使用 Object.defineProperty(obj, prop, define-obj)，包含三个参数：第一个 obj，是要修改的对象，第二个 prop 是对象中要修改的属性，第三个 define-obj 是一个对象，可以指定所有特性的值，对于没有指定的特性，默认为 false
+
+```
+let person = {};
+Object.defineProperty(person, "name", {
+  writable: false,
+  value: "lin"
+});
+console.log(person.name); 
+// lin
+person.name = "Grey";
+console.log(person.name);
+// lin
+```
+
+#### 访问器属性
+
+##### 内部特性
+
+- [[Configurable]]：表示属性是否可以通过 delete 删除并重新定义，是否可以修改这个属性的特性，是否可以把属性改为访问器属性，默认情况，直接定义在对象上的属性的这个特性值都为 true
+- [[Enumerable]]：表示属性是否可以通过 for-in 循环返回，默认情况，直接定义在对象上的属性的这个特性值都为 true
+- [[Get]]：获取函数，读取属性时使用，默认 undefined
+- [[Set]]：设置函数，写入属性时使用，默认 undefined
+
+直接定义访问器属性:
+
+```
+const book = {
+  // 下划线表示这个属性不想被外界访问，属于私有属性，有的约定在属性前加入下划线，有的在属性前加入双下划线，这些方式都可以
+  year_: 2017,
+  edition: 1,
+
+  get year() {
+    return this.year_;
+  },
+  set year(newVal) {
+    if(newVal > 2017) {
+      this.year_ = newVal;
+      this.edition += newVal - 2017;
+    }
+  }
+};
+
+book.year = 2018;
+alert(book.edition);  // 2
+```
+
+通过 Object.defineProperty() 定义：
+
+```
+let book = {
+  // 下划线表示这个属性不想被外界访问，属于私有属性
+  year_: 2017,
+  edition: 1
+};
+
+// 添加一个新属性 year，用于外界操作私有属性 year_
+Object.defineProperty(book, "year", {
+  // 设置 get 方法来访问私有属性
+  get() {
+    return this.year_;
+  },
+  // 设置给 year 赋值时的操作
+  set(newVal) {
+    if(newVal > 2017) {
+      this.year_ = newVal;
+      this.edition += newVal - 2017;
+    }
+  }
+});
+
+book.year = 2018;
+alert(book.edition);  // 2
+```
+
+可以看出，访问器的使用场景，即设置一个属性时同时发生其他的变化
+
+只定义 get 函数，则属性无法被修改，只定义 set 方法，非严格模式访问属性会返回 undefined，严格模式会报错
+
+### 定义多个属性
+
+Object.defineProperties()
+
+```
+let book = {};
+Object.defineProperties(book, {
+
+  year_: {
+    value: 2017
+  },
+
+  edition: {
+    value: 1
+  },
+
+  year: {
+    get() {
+      return this.year_;
+    },
+    set(newVal) {
+      if(newVal > 2017) {
+        this.year_ = newVal;
+        this.edition += newVal - 2017;
+      }
+    }
+  }
+});
+```
+
+这段代码和上一段示例是一样的
+
+### 读取属性的特性
+
+Object.getOwnPropertyDescriptor()
+
+接上面的代码：
+
+```
+let descriptor = Object.getOwnPropertyDescriptor(book, "year_");
+alert(descriptor.value);    // 2017
+alert(typeof descriptor.get);     // undefined
+alert(descriptor.configurable);   // false
+
+let descriptor = Object.getOwnPropertyDescriptor(book, "year");
+alert(typeof descriptor.get);    // function
+```
+
+Object.getOwnPropertyDescriptors()
+
+```
+let descriptor = Object.getOwnPropertyDescriptors(book);
+console.log(descriptor);
+
+/** 
+返回值：
+{
+  edition: {
+    configurable: false,
+    enumerable: false,
+    value: 1,
+    writable: false
+  },
+  year: {
+    configurable: false,
+    enumerable: false,
+    get: f(),
+    set: f(newVal)
+  },
+  year_: {
+    configurable: false,
+    enumerable: false,
+    value: 2017,
+    writable: false
+  }
+}
+ */
+```
+
+### 合并对象（ES6）
+
+合并（merge）操作有时也被称为混入（mixin）
+
+Object.assign()，第一个参数是目标对象，之后可以有一个或多个对象参数，作为要合并的源对象。会将每个源对象中的所有 ***可枚举***（可以 for-in 遍历） 和 ***自有***（非继承属性） 属性复制到目标对象。这个方法会使用源对象的 [[Get]] 获取属性的值，使用目标对象的 [[Set]] 设置属性的值
+
+```
+let dest, src, result;
+
+dest = {};
+src = { id: 'src'};
+
+result = Object.assign(dest, src);
+
+alert(dest === result);   // true
+alert(dest !== src);      // true
+```
+
+特点：
+
+- 如果多个源对象有重复的属性，那么会使用最后一个对象的属性值
+- Object.assign() 采用的是浅拷贝，即拷贝的属性值如果是引用值（对象），那么源对象和目标对象的这个属性会同时共用这个属性值
+- 两个对象之间不能转移 [[Get]] 和 [[Set]] 函数
+- 对于多个源对象合并，如果合并期间某一个对象的某个属性报错，会终止赋值，并且不会回滚，即已经合并的内容会保留
+
+### is()（ES6）
+
+ES6 之前，特殊情况下，=== 的结果很混乱：比如，`+0 === -0` 的结果是 true，或者判断 `NaN === NaN` 的结果是 false
+
+因此 ES6 新增 Object.is()，这个方法解决了上述的问题：
+
+```
+Object.is(-0, +0);  // false
+Object.is(0, +0);   // true
+Object.is(-0, 0);   // false
+
+Object.is(NaN, NaN);  // true
+```
+
+检查多个值是否相等（递归）：
+
+```
+function checkEqual(x, ...rest) {
+  return Object.is(x, rest[0]) && (rest.length < 2 || checkEqual(...rest))
+}
+```
+
+### 语法糖（ES6）
+
+#### 属性值简写
+
+```
+function a(name) {
+  return {
+    name: name
+  };
+}
+```
+
+语法糖：
+
+```
+function a(name) {
+  return {
+    name
+  };
+}
+```
+
+#### 可计算属性
+
+以下代码尝试将变量作为属性的名称，然后给这个属性赋值：
+
+```
+const nameKey = 'name';
+let person = {};
+person[nameKey] = 'lin';
+```
+
+语法糖：
+
+```
+const nameKey = 'name';
+let person = {
+  [nameKey]: 'lin'
+};
+```
+
+值得注意的是，如果在变量赋值过程中报错（由于属性名是变量，导致这种情况可能会发生），无法回滚
+
+#### 简写方法名
+
+给对象添加一个属性，并且它的值是一个匿名函数：
+
+```
+let person = {
+  printName: function(name) {
+    console.log(name);
+  }
+}
+```
+
+语法糖：
+
+```
+let person = {
+  printName(name) {
+    console.log(name);
+  }
+}
+```
+
+### 对象解构（ES6）
+
+```
+let person = {
+  name: 'lin',
+  age: 23
+}
+let pName = person.name;
+let pAge = person.age;
+```
+
+使用结构：
+
+```
+let person = {
+  name: 'lin',
+  age: 23
+}
+let { name: pName, age: pAge } = person;
+```
+
+简写：
+
+```
+let { name, age } = person;
+console.log(name);  // lin
+console.log(age);   // 23
+```
+
+如果解构时某个属性不存在，那么其值为 undefined，当然，也可以给可能不存在的属性设置一个默认值：
+
+```
+let {name, job='Student'} = person;
+console.log(job);  // Student
+```
+
+解构时，会使用内部函数 ToObject() （不能再运行时环境访问）把源数据转换为对象，因此 null 和 undefined 不能被解构，会报错
+
+```
+// ToObject() 会将字符串字面量转换成 String 对象类型
+let { length } = 'lin';
+console.log(length);    // 3
+
+// ToObject() 会将数值转换成 Number 对象类型
+let { constructor } = 5;
+console.log(constructor === Number); // true
+```
+
+如果解构的变量已经事先定义了，那么要用括号包裹表达式：
+
+```
+let name,age;
+let person = {
+  name: 'lin',
+  age: 23
+};
+
+({ name, age } = person);
+```
+
+#### 复制对象
+
+```
+let person = {
+  name: 'lin',
+  job: {
+    title: 'Student'
+  }
+};
+let copy = {};
+({ name: copy.name, job: copy.job } = person);
+```
+
+以上代码通过解构对对象进行复制，但是这种复制属于浅拷贝，即如果修改 person.job.title，那么 copy.job.title 会同时被修改，因为它们指向同一个引用值
+
+#### 嵌套解构
+
+```
+let person = {
+  name: 'lin',
+  job: {
+    title: 'Student'
+  }
+};
+// 先对 person 解构，然后再对 job 解构，最终获取 title 的值
+let { job: { title } } = person;
+// 等价于：
+let { job: { title: title } } = person;
+
+console.log(title);   // Student
+```
+
+#### 部分解构
+
+如果解构的属性没有定义，那么不能在这个属性上使用嵌套解构，会报错
+
+当报错时，终止解构，并且不会回滚，所以只会有部分解构成功
+
+#### 参数解构
+
+在函数的参数中也可以进行解构，并且不会影响 arguments 对象
+
+```
+let person = {
+  name: 'lin',
+  age: 23
+};
+
+function print(a, { name, age }, b) {
+  console.log(arguments);
+  console.log(name, age);
+}
+
+print(1, person, 2);
+// [1, { name: lin, age: 23 }, 2]
+// lin 23
+```
+
+## 创建对象
 
