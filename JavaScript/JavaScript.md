@@ -260,6 +260,12 @@
       - [部分解构](#部分解构)
       - [参数解构](#参数解构)
   - [创建对象](#创建对象)
+    - [工厂模式](#工厂模式)
+    - [构造函数模式](#构造函数模式)
+      - [构造函数模式与工厂模式的区别](#构造函数模式与工厂模式的区别)
+      - [使用 new 操作符调用构造函数流程](#使用-new-操作符调用构造函数流程)
+      - [构造函数可以区别对象类型](#构造函数可以区别对象类型)
+      - [构造函数也是函数](#构造函数也是函数)
 
 # 0 资源链接
 
@@ -795,7 +801,7 @@ Object 作为所有对象的基类，其他对象都继承以下的属性或方�
 
 #### 属性和方法
 
-- constructor：创建当前对象的函数，上面例子中就是 Object()
+- constructor：创建当前对象的构造函数，上面例子中就是 Object()
 - hasOwnProperty(proptypeName)：用于判断当前对象实例（不是原型）上是否存在名为 proptypeName（字符串或符号） 的属性
 - isProptypeOf(object)：判断当前对象是否为另一个对象的原型
 - propertyIsEnumerable(proptypeName)：判断给定属性是否可以使用 for-in 枚举，参数必须是字符串
@@ -3326,4 +3332,89 @@ print(1, person, 2);
 ```
 
 ## 创建对象
+
+### 工厂模式
+
+一种设计模式，是用于抽象创建特定对象的过程
+
+```
+function createPerson(name, age, job) {
+  let o = new Object();
+  o.name = name;
+  o.age = age;
+  o.job = job;
+  return o;
+}
+
+let person = createPerson("lin", 23, "Student");
+```
+
+这种模式解决了创建多个类似对象的问题，但是无法判断创建的对象是什么类型，因为所有的对象都是 Object 类型
+
+### 构造函数模式
+
+几种用构造函数创建对象的方式：
+
+```
+function Person(name, age, job) {
+  this.name = name;
+  this.age = age;
+  this.job = job;
+}
+
+let person = new Person("lin", 23, "Student");
+```
+
+等价于：
+
+```
+let Person = function (name, age, job) {
+  this.name = name;
+  this.age = age;
+  this.job = job;
+}
+
+let person = new Person("lin", 23, "Student");
+```
+
+无参构造函数：
+
+```
+function person() {
+  this.name = "lin";
+  this.age = 23;
+  this.job = "Student";
+}
+
+let person = new Person();
+```
+
+#### 构造函数模式与工厂模式的区别
+
+- 没有显示创建对象
+- 属性和方法赋值给 this（this 是方法的调用者，即 person 实例）
+- 没有 return
+
+#### 使用 new 操作符调用构造函数流程
+
+1. 在内存中创建一个新对象
+2. 将构造函数的 prototype 属性赋值给这个新对象的 [[prototype]] 特性
+3. 构造函数中的 this 被值为这个新对象
+4. 执行构造函数中的代码
+5. 如果构造函数返回非空对象，则返回该对象，否则返回这个新对象
+
+#### 构造函数可以区别对象类型
+
+如果再执行 `console.log(person.constructor)` 可以发现 person 继承了 Object 的 constructor 属性，并且打印的内容正是 Person 的构造函数，并且无论创建多少个 Person 实例，它们的 constructor 都指向同一个构造函数
+
+```
+alert(person instanceof Object);  // true
+alert(person instanceof Person);  // true
+```
+
+根据以上代码可以看出，person 既是 Object 的实例，又是 Person 的实例，因为自定义对象都继承自 Object
+
+#### 构造函数也是函数
+
+构造函数和普通函数的区别仅在于调用方式：构造函数通过 new 操作符创建，普通函数直接创建
 
