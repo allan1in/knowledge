@@ -266,6 +266,14 @@
       - [使用 new 操作符调用构造函数流程](#使用-new-操作符调用构造函数流程)
       - [构造函数可以区别对象类型](#构造函数可以区别对象类型)
       - [构造函数也是函数](#构造函数也是函数)
+      - [构造函数的问题](#构造函数的问题)
+    - [原型模式](#原型模式)
+      - [理解原型](#理解原型)
+      - [原型方法](#原型方法)
+        - [isPrototypeOf()](#isprototypeof)
+        - [Object.getPrototypeOf()](#objectgetprototypeof)
+        - [Object.setPrototypeOf()](#objectsetprototypeof)
+      - [原型层级](#原型层级)
 
 # 0 资源链接
 
@@ -3380,7 +3388,7 @@ let person = new Person("lin", 23, "Student");
 无参构造函数：
 
 ```
-function person() {
+function Person() {
   this.name = "lin";
   this.age = 23;
   this.job = "Student";
@@ -3417,4 +3425,154 @@ alert(person instanceof Person);  // true
 #### 构造函数也是函数
 
 构造函数和普通函数的区别仅在于调用方式：构造函数通过 new 操作符创建，普通函数直接创建
+
+```
+function Person() {
+  this.name = "lin";
+  this.age = 23;
+  this.job = "Student";
+  this.sayName = function(){
+    alert(this.name);
+  }
+}
+
+let person = new Person("lin", 23, "Student");
+person.sayName()
+
+Person("lin", 23, "Student");
+window.sayName()
+
+let o = new Object();
+Person.call(o, "lin", 23, "Student");
+o.sayName();
+```
+
+以上代码有三种调用方式：
+
+- new 操作符调用构造函数，这时的调用者（this 指向）是 person 实例
+- 直接调用构造函数，并且没有指定 this，这时 this 始终指向 Global（window）对象实例
+- 使用 call 指定 this 的值为实例 o
+
+#### 构造函数的问题
+
+构造函数中的 function 会重复创建，即不同的实例虽然都有构造函数中定义的方法（如上文中的 sayName()），但是这些 function 不属于同一个 Function 实例
+
+上文的 Person 构造函数等价于：
+
+```
+function Person() {
+  this.name = "lin";
+  this.age = 23;
+  this.job = "Student";
+  // 这里相当于创建一个新的 Function 实例
+  this.sayName = new Function("alert(this.name)");
+}
+
+let person1 = new Person("lin", 23, "Student");
+let person2 = new Person("wang", 22, "Student");
+
+alert(person1.sayName == person2.sayName);  // false
+```
+
+没有必要为每一个 Person 实例定义不同的 Function 实例，因此可以把函数转移到构造函数外：
+
+```
+function Person() {
+  this.name = "lin";
+  this.age = 23;
+  this.job = "Student";
+  // 这里的 sayName 是一个指向外部方法的指针
+  this.sayName = sayName;
+}
+
+function sayName(){
+  alert(this.name);
+}
+```
+
+这样，可以让每个 Person 实例都公用一个方法，因为这个方法是定义咋 window 上的，但这样会导致自定义类型引用的函数不能很好的聚集再一起，所有自定义类型的方法都会创建在 window 对象上，十分混乱，这个问题可以通过原型模式解决
+
+### 原型模式
+
+每个函数都会创建一个 prototype 属性，这个属性是一个对象，包含当前引用类型的实例共享的属性和方法，可以将属性和方法赋值到 构造函数的 prototype 上：
+
+```
+function Person() {}
+
+Person.prototype.name = "lin";
+Person.prototype.age = 23;
+Person.prototype.job = "Student";
+Person.prototype.sayName = function(){
+  alert(this.name);
+}
+
+let person1 = new Person("lin", 23, "Student");
+let person2 = new Person("wang", 22, "Student");
+
+alert(person1.sayName == person2.sayName);  // true
+```
+
+可以看出，person1 和 person2 的 sayName 函数是同一个实例
+
+#### 理解原型
+
+定义构造函数时，会自动创建一个 prototype 属性，指向这个函数的原型对象，原型对象有一个 constructor 属性，又指向构造函数，在之前的例子中，Person.prototype.constructor 指回 Person，即构造函数和原型对象是循环调用的关系：
+
+```
+alert(Person.prototype.constructor);   // Person
+```
+
+原型对象：自定义构造函数时自动创建，只默认获取 constructor 属性，其他属性继承自 Object
+
+实例创建时，实例内部特性 [[Prototype]] 指针指向构造函数的原型对象，但是内部特性开发者无法访问，可以通过浏览器供应商实现的 `__proto__` 属性访问原型对象：
+
+```
+// Person 的原型对象的原型对象就是 Object 的原型对象
+alert(Person.prototype.__proto__ === Object.prototype);   // true
+```
+
+`__proto__` 和 prototype 区别：
+
+- 构造函数通过 prototype 链接到原型对象
+- 实例通过 `__proto__` （ [[Prototype]] ）链接到原型对象
+
+Object 的原型对象为 null，因为 Object 位于原型链的最顶层：
+
+```
+// Person 的原型链最后终止于 Object 的原型对象
+alert(Person.prototype.__proto__.__proto__ === null);   // true
+```
+
+关键：构造函数、原型对象、实例是 3 个完全不同的对象，实例和其构造函数中都有相应的属性（ `__proto__` 和 prototype ）指向构造函数的原型对象，而实例和构造函数之间没有关系，但是实例仍然可以以  `person1.sayName()` 的方式调用构造函数原型对象的函数，这是由于对象属性查找机制的原因
+
+#### 原型方法
+
+##### isPrototypeOf()
+
+判断对象的原型类型（如果参数对象的原型对象是调用者时返回 true）：
+
+```
+console.log(Person.prototype.isPrototypeOf(person1));   // true
+```
+
+##### Object.getPrototypeOf()
+
+返回参数内部特性 [[Prototype]] 的值，即原型对象
+
+##### Object.setPrototypeOf()
+
+给参数对象的原型对象增加属性
+
+```
+// 给 Person 的原型对象新增一个 numLeges: 2 属性
+Object.setPrototype(person, {numLegs: 2});
+```
+
+这种方式有很大的隐患，因为这样会修改所有访问这个对象的代码，十分影响性能，可以通过 Object.create() 创建新对象，同时指定其原型对象：
+
+```
+let person = Object.create({numLegs: 2});
+```
+
+#### 原型层级
 
