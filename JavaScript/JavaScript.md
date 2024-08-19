@@ -274,6 +274,20 @@
         - [Object.getPrototypeOf()](#objectgetprototypeof)
         - [Object.setPrototypeOf()](#objectsetprototypeof)
       - [原型层级](#原型层级)
+        - [hasOwnProperty()](#hasownproperty)
+      - [原型和 in](#原型和-in)
+      - [属性枚举](#属性枚举)
+        - [属性枚举顺序](#属性枚举顺序)
+    - [对象迭代](#对象迭代)
+      - [Object.entries()](#objectentries)
+      - [Object.values()](#objectvalues)
+    - [补充](#补充)
+      - [创建原型对象](#创建原型对象)
+      - [原型的动态性](#原型的动态性)
+      - [原生对象原型](#原生对象原型)
+      - [原型的问题](#原型的问题)
+  - [继承](#继承)
+    - [原型链](#原型链)
 
 # 0 资源链接
 
@@ -1503,7 +1517,7 @@ let 与 const 都以块为作用域，所以相比域 var (函数作用域)，�
 
 # 4 基本引用类型
 
-引用类型：描述了对象应有的属性和方法，引用值（对象）是某个特定引用类型的实例
+引用类型：又称为对象定义，描述了对象应有的属性和方法，引用值（对象）是某个特定引用类型的实例
 
 ECMAscript 中的引用类型经常被人们和 Java 中的类混淆。ECMAscript 虽然上是一种面向对象语言，但是缺少传统面向对象编程语言的某些基本结构，比如类和接口
 
@@ -2100,6 +2114,17 @@ let person = {
 let person = {};
 person.name = "lin";
 person.age = 23;
+```
+
+也可以通过 [] 设置动态属性名：
+
+```
+let key = "name"
+let person = {
+  [key]: "lin",
+  age: 23
+}
+console.log(person.name);   // lin
 ```
 
 对象字面量的应用：给函数传入可选参数，即给函数传入一个对象，函数内部判断对象中是否有某个属性，如果有则可以将这个属性当作一个参数使用。一般对于必选的参数采用命名参数，对可选的参数采用对象字面量封装多个参数。
@@ -3575,4 +3600,278 @@ let person = Object.create({numLegs: 2});
 ```
 
 #### 原型层级
+
+通过对象访问属性时，会先从实例本身开始搜索这个属性，如果没有，再从对象的原型对象中搜索这个属性
+
+```
+function Person() {}
+
+Person.prototype.name = "lin";
+Person.prototype.age = 23;
+Person.prototype.job = "Student";
+Person.prototype.sayName = function(){
+  alert(this.name);
+}
+
+let person1 = new Person();
+let person2 = new Person();
+
+person1.name = "li";
+alert(person1.name);  // li 属性值来自实例
+alert(person1.name);  // lin 属性值来自于原型
+```
+
+属性遮蔽（shadow）：给对象添加一个属性，这个属性会覆盖原型对象中的同名属性，注意不会修改原型的属性，只是屏蔽对它的访问
+
+如何解除属性遮蔽？即使将对象属性的值设为 null，原型属性也会被遮蔽，可以使用 delete 删除对象属性，这样便可以解除对原型属性的屏蔽
+
+接上文代码：
+
+```
+delete person1.name;
+alert(person1.name);  // lin
+```
+
+##### hasOwnProperty()
+
+用于确定属性是在实例上还是在原型对象上，如果参数中的属性在调用它的实例上，返回 true
+
+接上文代码：
+
+```
+alert(person1.hasOwnProperty("name"));  // false
+
+person1.name = "wang";
+alert(person1.hasOwnProperty("name"));  // true
+```
+
+可以看出，只有实例属性遮蔽原型属性时会返回 true
+
+#### 原型和 in
+
+单独使用 in 操作符可以判断某个属性是否在对象上，无论在实例上还是在原型对象上都返回 true
+
+接上文代码：
+
+```
+alert("name" in person1);   // true
+```
+
+如果要判断某个属性是否是原型对象的属性，可以将 in 和 hasOwnProperty() 配合使用：
+
+接上文代码：
+
+```
+// 如果属性不是实例属性且这个属性存在，那么它就是原型对象的属性
+alert(!person1.hasOwnProperty("name") && ("name" in person1));  // false
+```
+
+#### 属性枚举
+
+for-in 循环可以返回可枚举的所有属性，包括实例属性和原型属性
+
+```
+function Person() {}
+
+Person.prototype.name = "lin";
+Person.prototype.age = 23;
+Person.prototype.job = "Student";
+Person.prototype.sayName = function(){
+  alert(this.name);
+}
+
+let person1 = new Person();
+person1.gender = "male";
+person1.name = "wang";
+for(let prop in person1){
+  console.log(prop);
+}
+// gender
+// name
+// age
+// job
+// sayName
+```
+
+Object.keys() 可以返回所有可枚举的实例属性
+
+```
+console.log(Object.keys(person1));  // ['gender', 'name']
+```
+
+Object.getOwnPropertyNames() 可以返回所有实例属性，无论是否可以枚举
+
+```
+console.log(Object.getOwnPropertyNames(person1.__proto__));
+// ['constructor', 'name', 'age', 'job', 'sayName']
+```
+
+Object.getOwnPropertySymbols() 可以返回所有以 Symbol 类型为属性名的属性
+
+```
+let k1 = Symbol('k1');
+let k2 = Symbol('k2');
+
+let obj = {
+  [k1]: 'k1',
+  [k2]: 'k2'
+}
+
+console.log(Object.getOwnPropertySymbols(obj));
+// [Symbol(k1), Symbol(k2)]
+```
+
+##### 属性枚举顺序
+
+for-in 和 Object.keys() 枚举顺序不确定，取决于浏览器
+
+Object.getOwnPropertyNames() 和 Object.getOwnPropertySymbols() 以及 Object.assign() 的枚举顺序确定：先升序枚举所有 Number 类型的属性名，再以插入顺序枚举 String 和 Symbol 属性名
+
+### 对象迭代
+
+#### Object.entries()
+
+参数是一个对象，方法会以键值对的形式返回所有的属性和属性值，不包括 Symbol 属性，执行的是浅拷贝
+
+```
+let o = {
+  name: "lin",
+  gender: "male"
+}
+
+console.log(Object.entries(o));
+// [['name', 'lin'], ['gender', 'male']]
+```
+
+#### Object.values()
+
+和 Object.keys() 是兄弟方法，返回所有的属性值，不包括 Symbol 属性，执行的是浅拷贝
+
+```
+console.log(Object.values(o));
+// ['lin', 'male']
+```
+
+### 补充
+
+#### 创建原型对象
+
+在之前的方式中，定义原型是这样的：
+
+```
+function Person() {}
+
+Person.prototype.name = "lin";
+Person.prototype.age = 23;
+Person.prototype.job = "Student";
+Person.prototype.sayName = function(){
+  alert(this.name);
+}
+```
+
+可以进行简化：
+
+```
+function Person() {}
+
+Person.prototype = {
+  name = "lin",
+  age = 23,
+  job = "Student",
+  sayName = function(){
+    alert(this.name);
+  }
+}
+```
+
+这样重写之后，Person.prototype.constructor 不再指向 Person，而是指向 Object 构造函数，虽然仍然可以通过 instanceof 判断实例是否属于 Person 对象，但是无法使用 constructor 判断实例的对象类型了，如果 constructor 很重要可以这样重写：
+
+```
+function Person() {}
+
+Person.prototype = {
+  constructor: Person,
+  name = "lin",
+  age = 23,
+  job = "Student",
+  sayName = function(){
+    alert(this.name);
+  }
+}
+```
+
+但是，这样还有缺陷，由于开发者创建的属性默认是可枚举的，这个手动添加 constructor 会被认为是可枚举类型的属性，为了让这个 constructor 是默认的不可枚举类型属性，可以这样重写：
+
+```
+function Person() {}
+
+Person.prototype = {
+  name = "lin",
+  age = 23,
+  job = "Student",
+  sayName = function(){
+    alert(this.name);
+  }
+}
+
+Object.defineProperty(Person.prototype, 'constructor', {
+  enumerable: false,
+  value: Person
+})
+```
+
+#### 原型的动态性
+
+即使修改原型对象时，实例已经存在，这时对原型对象的修改也会反映在实例上：
+
+```
+let man = new Person();
+
+Person.prototype.sayHi = function () {
+  console.log("hi");
+}
+
+man.sayHi();  // hi
+```
+
+这是因为实例与原型之间的联系：实例中的 [[Prototype]] (即 `__proto__`) 的值是一个指针，指向原型对象，因此，当尝试通过实例调用 sayHi() 方法时，实例会先尝试在实例中搜寻 sayHi()，没有找到，会按照 [[Prototype]] 的指针值找到原型对象，再从原型对象中搜索 sayHi()，找到之后进行调用
+
+但是，如果重写整个原型对象，会切断实例与原型对象的联系，这样无法通过实例调用新创建的方法：
+
+```
+let man = new Person();
+
+Person.prototype = {
+  constructor: Person,
+  sayHi() {
+    console.log("hi");
+}
+}
+
+man.sayHi();  // Error
+```
+
+这是因为当给 Person.prototype 赋一个新值后，Person 构造函数会的 prototype 属性会指向新原型对象，但是已经创建的实例 man 的 `__proto__` 仍然指向旧原型对象，因此实例搜索不到要调用的 sayHi() 方法
+
+要想调用 sayHi() 方法，需要再重写原型对象后新建一个实例，再通过这个实例调用方法
+
+#### 原生对象原型
+
+原生对象的构造函数（String、Array、Object 等）都在其原型对象上定义了方法，比如 String 对象的 substring()，所有字符串实例都可以调用这个方法，这也是采用原型模式的优势
+
+开发者可以在原生对象的原型上添加新的方法，这种方式添加的方法可以在当前环境中所有的实例使用。但是不推荐这种做法，因为可能引发命名冲突，也有可能意外重写原生方法。推荐做法是创建一个自定义类，继承原生类型
+
+#### 原型的问题
+
+因为原型可以为属性设置默认值，它弱化了向构造函数传递初始化参数的能力
+
+当原型对象属性的属性值是一个引用值时，如果一个实例对这个引用值进行修改，会导致其他所有实例的属性值也会被修改，一般来说，不同实例应该有属于自己的属性副本，所以实际开发中不单独使用原型模式
+
+## 继承
+
+其他面向对象语言支持两种继承：implements 和 extends，即接口继承和实施继承，前者是继承一个标签，后者是继承一个方法（类）
+
+在 ECMAscript 中只有实施继承，通过原型链实现
+
+### 原型链
 
