@@ -288,6 +288,8 @@
       - [原型的问题](#原型的问题)
   - [继承](#继承)
     - [原型链](#原型链)
+      - [默认的原型](#默认的原型)
+      - [原型与继承的关系](#原型与继承的关系)
 
 # 0 资源链接
 
@@ -829,7 +831,7 @@ Object 作为所有对象的基类，其他对象都继承以下的属性或方�
 - propertyIsEnumerable(proptypeName)：判断给定属性是否可以使用 for-in 枚举，参数必须是字符串
 - toLocaleString()：返回对象的字符串表示，该字符串反应对象所在的本地化执行环境
 - toString()：返回对象的字符串表示
-- valueOf()：返回对象的字符串、数值或布尔值，通常与 toString() 返回值相同，用于操作符比较大小会调用这个方法
+- valueOf()：返回对象的字符串、数值或布尔值，通常与 toString() 返回值相同，用于操作符比较大小或运算时，会调用这个方法，用于自动转换
 
 ## 操作符
 
@@ -1017,7 +1019,7 @@ Math.pow(3, 2);   // 9
 !=
 ```
 
-比较时会自动转换操作数，即 3 == "3" 结果为 true
+比较时会通过 valueOf() 自动转换操作数，即 3 == "3" 结果为 true
 
 #### 全等和不全等
 
@@ -1341,7 +1343,9 @@ console.log(person.name); // "Nick"
 
 typeof 可以区分所有的原始值，但是无法区分 null 和 object（都返回 Object），为了区分所有引用类型，使用 instanceof
 
-判断变量是否属于某种引用类型，返回 boolean
+判断变量（实例）是否属于某种引用类型，返回 boolean
+
+如果实例的原型链上有这个引用类型的构造函数，那么就会返回 true，换句话说，只要实例所继承的父类型中有这个引用类型，就会返回 true
 
 ```
 console.log(person instanceof Object);
@@ -2318,7 +2322,7 @@ ary instanceof Array
 
 #### isArray()
 
-只判断是不是数组，不管它的原型链在哪个框架上
+只判断是不是数组，不管它的原型链在哪个框架上（不同的全局上下文会导致不同的原型链）
 
 ```
 Array.isArray(ary);
@@ -3875,3 +3879,47 @@ man.sayHi();  // Error
 
 ### 原型链
 
+ES 通过原型链实现实施继承：
+
+```
+// 新建父构造函数，创建一个实例属性，一个原型方法
+function Father() {
+  this.color = "yellow"
+}
+father.prototype.sayHi = function(){
+  console.log("Hi");
+}
+
+// 新建子构造函数
+function Son(){
+  this.name = "son"
+}
+// 让子构造函数继承父实例
+Son.prototype = new Father()
+// 为子构造函数添加新的原型方法
+Son.prototype.sayBye = function() {
+  console.log("bye");
+}
+
+let son = new Son();
+// 子实例可以直接调用父构造函数的所有属性和方法
+console.log(son.color);   // yellow
+son.sayHi();              // Hi
+```
+
+继承的关键在于：`Son.prototype = new Father()`，这句代码将 Son 原本的原型对象替换为 Father 的实例，这样会使得 Son.prototype 中包含 color 属性（因为 this 就指向 Son.prototype），而 sayHi() 在 Father 的原型对象中
+
+属性搜索机制的拓展：读取实例属性时，会首先在实例上搜索，没有则到原型对象中搜索，如果没有，则可以顺着原型链，不断搜索原型的原型
+
+```
+// 读取 sayHi() 方法要搜索两个原型对象
+console.log(son.__proto__.__proto__);   // sayHi()
+```
+
+#### 默认的原型
+
+任何函数的默认原型都是 Object，而 Object 的原型是 null
+
+因此，所有原生引用类型都继承了 valueOf()、toString() 等方法
+
+#### 原型与继承的关系
