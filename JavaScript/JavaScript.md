@@ -135,8 +135,16 @@
       - [Number() 与 new Number()](#number-与-new-number)
     - [Boolean](#boolean-1)
     - [Number](#number-1)
-    - [String（TODO）](#stringtodo)
-      - [JavaScript 字符（TODO）](#javascript-字符todo)
+    - [String](#string-1)
+      - [字符方法](#字符方法)
+        - [编码](#编码)
+        - [length](#length)
+        - [charAt()](#charat)
+        - [charCodeAt()](#charcodeat)
+        - [String.fromCharCode()](#stringfromcharcode)
+        - [Unicode 代理对](#unicode-代理对)
+        - [codePointAt()](#codepointat)
+        - [String.fromCodePoint()](#stringfromcodepoint)
       - [normalize()（TODO）](#normalizetodo)
       - [字符串操作方法](#字符串操作方法)
       - [字符串位置方法](#字符串位置方法)
@@ -212,7 +220,7 @@
       - [reduce()](#reduce)
       - [reduceRight()](#reduceright)
   - [定型数组（TODO）](#定型数组todo)
-  - [Map（ES6）](#mapes6)
+  - [Map](#map-1)
     - [创建](#创建)
     - [增删改查](#增删改查)
       - [set()](#set)
@@ -236,8 +244,8 @@
     - [与 Map 的区别](#与-map-的区别-1)
     - [定义正式集合操作（TODO）](#定义正式集合操作todo)
   - [WeakSet（TODO）](#weaksettodo)
-- [7 迭代器与生成器（TODO）](#7-迭代器与生成器todo)
-- [8 面向对象](#8-面向对象)
+- [6 迭代器与生成器（TODO）](#6-迭代器与生成器todo)
+- [7 面向对象](#7-面向对象)
   - [理解对象](#理解对象)
     - [属性的类型](#属性的类型)
       - [数据属性](#数据属性)
@@ -248,13 +256,13 @@
         - [内部特性](#内部特性-1)
     - [定义多个属性](#定义多个属性)
     - [读取属性的特性](#读取属性的特性)
-    - [合并对象（ES6）](#合并对象es6)
-    - [is()（ES6）](#ises6)
-    - [语法糖（ES6）](#语法糖es6)
+    - [合并对象](#合并对象)
+    - [is()](#is)
+    - [语法糖](#语法糖)
       - [属性值简写](#属性值简写)
       - [可计算属性](#可计算属性)
       - [简写方法名](#简写方法名)
-    - [对象解构（ES6）](#对象解构es6)
+    - [对象解构](#对象解构)
       - [复制对象](#复制对象)
       - [嵌套解构](#嵌套解构)
       - [部分解构](#部分解构)
@@ -290,6 +298,18 @@
     - [原型链](#原型链)
       - [默认的原型](#默认的原型)
       - [原型与继承的关系](#原型与继承的关系)
+      - [方法覆写](#方法覆写)
+      - [原型链的问题](#原型链的问题)
+    - [盗用构造函数](#盗用构造函数)
+      - [问题](#问题)
+    - [组合继承](#组合继承)
+      - [问题](#问题-1)
+    - [原型式继承（无构造函数）](#原型式继承无构造函数)
+      - [Object.create()](#objectcreate)
+    - [寄生式继承（无构造函数）](#寄生式继承无构造函数)
+    - [寄生式组合继承](#寄生式组合继承)
+  - [类](#类)
+    - [类定义](#类定义)
 
 # 0 资源链接
 
@@ -1767,7 +1787,7 @@ Number.isInteger(1.01); // false
 
 isSafeInteger()，判断一个整数是否在保存范围之内（Number.MIN_SAFE_INTEGER: -2^53+1, Number.MAX_SAFE_INTEGER: 2^53+1）
 
-### String（TODO）
+### String
 
 创建一个 String 对象，使用构造函数传入字符串：
 
@@ -1782,15 +1802,100 @@ let stringObject = new String("hello");
 
 String 类型提供了很多方法来解析或操作字符串：
 
-#### JavaScript 字符（TODO）
+#### 字符方法
 
-字符：一个字符由 16 个码元（code unit）组成
+##### 编码
 
-length 属性，表示字符串包含多少个 16 位码元（字符）
+字符：一个字符由 16 位（4位16进制数）码元（code unit）组成
 
-charAt() 方法，参数为索引值，根据索引值返回字符
+JS 字符串的编码：采用 UCS-2 和 UTF-16 混合，不过对于采用 16 位编码的字符（U+0000~U+FFFF），这两种编码实际上一样。[关于编码的文章](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/)
 
-JS 字符串的编码：采用 UCS-2 和 UTF-16，[更多关于编码的内容](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/)
+##### length
+
+表示字符串包含多少个 16 位码元（字符）
+
+##### charAt()
+
+参数为索引值，根据索引值返回字符
+
+##### charCodeAt()
+
+查看某个字符的编码值，返回十进制编码
+
+```
+let str = "abcdef";
+// 字符 c 的编码是 U+0063（ 16 进制 ）
+console.log(str.charCodeAt(2));   // 99
+console.log(99 === 0x63);   // true
+```
+
+##### String.fromCharCode()
+
+可以接收多个参数，每个参数是字符的 UTF-16 码元（十进制或十六进制），返回拼接好的字符串
+
+```
+console.log(String.fromCharCode(0x61, 0x62, 0x63, 0x64, 0x65));
+// "abcde"
+console.log(String.fromCharCode(97, 98, 99, 100, 101));
+// "abcde"
+```
+
+##### Unicode 代理对
+
+Unicode 中的基本多语言平面（BMP）：使用 16 位表示基本字符
+
+Unicode 中的增补平面：给每个字符使用两个 16 位码元，这种策略也成为代理对
+
+```
+// 笑脸字符采用代理对策略，即一个字符占用两个 16 位码元
+let str = "ab😊d";
+
+console.log(str.length);  // 5（因为 length 表示的是 16 位码元的个数）
+console.log(str.charAt(3));   // �（对于代理对，需要两个码元才能解析出字符，故显示乱码）
+
+// fromCharCode 方法可以识别出 55357, 56842 表示的是一个字符
+console.log(String.fromCharCode(97, 98, 55357, 56842, 100));
+// "ab😊d"
+```
+
+##### codePointAt()
+
+码点可能是 16 位，也可能是 32 位，是一个字符的完整标识
+
+和 charCodeAt() 类似，可以接收 index 参数，返回这个字符的码点（code point）
+
+```
+let str = "ab😊d";
+
+for(let i=0;i<5;i++){
+  console.log(str.charCodeAt(i));
+}
+// 97
+// 98
+// 55357
+// 56842
+// 100
+
+for(let i=0;i<5;i++){
+  console.log(str.codePointAt(i));
+}
+// 97
+// 98
+// 128522
+// 56842 （如果传入的索引不是字符的开头，会返回错误的码点）
+// 100
+```
+
+##### String.fromCodePoint()
+
+String.fromCharCode() 也有对应的方法 String.fromCodePoint()
+
+```
+console.log(String.fromCharCode(97, 98, 55357, 56842, 100));
+// "ab😊d"
+console.log(String.fromCodePoint(97, 98, 128522, 100));
+// "ab😊d"
+```
 
 #### normalize()（TODO）
 
@@ -2705,7 +2810,7 @@ vals.reduce((prev, curr, index, array) => prev + curr);
 
 ## 定型数组（TODO）
 
-## Map（ES6）
+## Map
 
 Map，映射
 
@@ -2924,9 +3029,9 @@ Set 的迭代器没有 keys()，也有 entries()，不过 entries() 返回的是
 
 ## WeakSet（TODO）
 
-# 7 迭代器与生成器（TODO）
+# 6 迭代器与生成器（TODO）
 
-# 8 面向对象
+# 7 面向对象
 
 ## 理解对象
 
@@ -3138,7 +3243,7 @@ console.log(descriptor);
  */
 ```
 
-### 合并对象（ES6）
+### 合并对象
 
 合并（merge）操作有时也被称为混入（mixin）
 
@@ -3163,7 +3268,7 @@ alert(dest !== src);      // true
 - 两个对象之间不能转移 [[Get]] 和 [[Set]] 函数
 - 对于多个源对象合并，如果合并期间某一个对象的某个属性报错，会终止赋值，并且不会回滚，即已经合并的内容会保留
 
-### is()（ES6）
+### is()
 
 ES6 之前，特殊情况下，=== 的结果很混乱：比如，`+0 === -0` 的结果是 true，或者判断 `NaN === NaN` 的结果是 false
 
@@ -3185,7 +3290,7 @@ function checkEqual(x, ...rest) {
 }
 ```
 
-### 语法糖（ES6）
+### 语法糖
 
 #### 属性值简写
 
@@ -3250,7 +3355,7 @@ let person = {
 }
 ```
 
-### 对象解构（ES6）
+### 对象解构
 
 ```
 let person = {
@@ -3519,7 +3624,7 @@ function sayName(){
 }
 ```
 
-这样，可以让每个 Person 实例都公用一个方法，因为这个方法是定义咋 window 上的，但这样会导致自定义类型引用的函数不能很好的聚集再一起，所有自定义类型的方法都会创建在 window 对象上，十分混乱，这个问题可以通过原型模式解决
+这样，可以让每个 Person 实例都公用一个方法，因为这个方法是定义在 window 上的，但这样会导致自定义类型引用的函数不能很好的聚集再一起，所有自定义类型的方法都会创建在 window 对象上，十分混乱，这个问题可以通过原型模式解决
 
 ### 原型模式
 
@@ -3886,7 +3991,7 @@ ES 通过原型链实现实施继承：
 function Father() {
   this.color = "yellow"
 }
-father.prototype.sayHi = function(){
+Father.prototype.sayHi = function(){
   console.log("Hi");
 }
 
@@ -3923,3 +4028,261 @@ console.log(son.__proto__.__proto__);   // sayHi()
 因此，所有原生引用类型都继承了 valueOf()、toString() 等方法
 
 #### 原型与继承的关系
+
+instanceof 判断实例的原型链上是否有相应的构造函数
+
+isPrototypeof() 判断实例的原型链上是否有调用者
+
+#### 方法覆写
+
+继承之后，子类可以覆写父类的方法
+
+```
+function Father() {
+  this.color = "yellow"
+}
+Father.prototype.sayHi = function(){
+  console.log("Hi");
+}
+
+function Son(){
+  this.property = true
+}
+
+Son.prototype = new Father();
+
+// 覆写
+Son.prototype.sayHi = function(){
+  console.log("Hello");
+}
+
+let son = new Son();
+son.sayHi();  // Hello 
+
+let father = new Father();
+father.sayHi();   // Hi
+```
+
+覆写并不会删除父类原本的方法，可以通过创建父类实例来调用，这里的覆写就是之前在原型层级中提到的遮蔽
+
+#### 原型链的问题
+
+如果父类的属性采用引用值，那么这个引用值会在所有实例之间共享：
+
+```
+function Father() {
+  this.color = ["red", "blue"]
+}
+
+function Son(){
+  this.property = true
+}
+
+Son.prototype = new Father();
+
+let son = new Son();
+son.color.push("green");
+console.log(son.color);   // ['red', 'blue', 'green']
+
+let son2 = new Son();
+console.log(son2.color);    // ['red', 'blue', 'green']
+```
+
+并且，子类在实例化时不能给父类的构造函数传参，这样做可能会影响父类所有对象实例
+
+正因为这些问题，原型链不可能被单独使用
+
+### 盗用构造函数
+
+盗用构造函数（constructor stealing）又称 对象伪装 或 经典继承，用于解决原型链继承的问题：
+
+```
+function Father() {
+  this.color = ["red", "blue"]
+}
+
+function Son(){
+  // 调用父类构造函数，this 指向 Son 的调用者，实现继承
+  Father.call(this);
+}
+
+let son = new Son();
+son.color.push("green");
+console.log(son.color);   // ['red', 'blue', 'green']
+
+// 引用值属性不在实例之间共享了
+let son2 = new Father();
+console.log(son2.color);    // ['red', 'blue']
+```
+
+`Father.call(this);` 在 Son 的函数作用域中调用了 Father 构造函数，一旦进行实例化，函数的调用者确定，Son 构造函数中的 this 会指向实例 son，Father 构造函数中的 this 也会指向实例 son，因此这个实例会继承父类的属性
+
+由于每个 Father 实例都创建在 Son 实例的上下文中，因此每创建一个 Son 实例，都会创建一个新的 Father 实例，因此父类的引用值属性不会在所有实例之间共享
+
+这种继承方式还允许对父类构造函数进行传参：
+
+```
+function Father(name){
+  this.name = name;
+}
+function Son(){
+  Father.call(this, "lin");
+  this.age = 23;
+}
+
+let son = new Son();
+console.log(son.name);  // lin
+```
+
+因为每个 Father 实例都是独立的，因此不用担心会因为传参而影响其他实例
+
+#### 问题
+
+子类不能访问父类原型对象上的方法，所有属性和方法只能定义在构造函数上
+
+方法必须定义在构造函数中，因此每创建一个实例，都会创建一个新的方法，方法无法重用
+
+### 组合继承
+
+又称伪经典继承，这种方式结合了盗用构造函数和原型链，通过盗用构造函数继承父类的属性，通过原型链继承父类的方法。
+
+```
+function Father(name){
+  this.name = name;
+}
+Father.prototype.sayHi = function(){
+  console.log("Hi");
+}
+function Son(name){
+  Father.call(this, name);
+  this.age = 23;
+}
+
+// 可以通过父类构造函数传参了
+Son.prototype = new Father("lin");
+```
+
+这样，可以将方法定义在父类的原型对象上，方法得到了重用，并且由于属性是通过盗用构造函数继承的，因此，引用值属性不会共享
+
+组合继承保留了 instanceof 和 isPropertyOf() 识别的能力，是使用最多的继承方式
+
+#### 问题
+
+效率较低，父类构造函数始终会被调用两次，导致父类的属性即存在于子类原型对象中，又存在于子类实例中，实际上，子类实例的属性会遮蔽子类原型对象上的同名属性
+
+### 原型式继承（无构造函数）
+
+这种继承的目的是为了：即使不创建构造函数，也可以通过原型进行对象之间的信息共享
+
+使用场景：你有一个对象，想在它的基础上创建一个新对象，且不创建构造函数
+
+```
+function object(o) {
+  function F() {};
+  F.prototype = o;
+  return new F();
+}
+```
+
+object 方法实际上接收一个对象，然后返回这个对象的复制，通过原型让返回的 new F() 也拥有 o 对象的所有属性和方法，并且这种复制属于浅拷贝，这意味着引用值属性在复制的对象之间是共享的
+
+#### Object.create()
+
+ES5 添加了 Object.create() 方法，规范化了这个功能，接收两个参数：作为新对象原型的对象，以及给新对象额外属性的对象（可选）。因此，当只有一个函数时，Object.create() 和上文代码中的函数是一样的
+
+第二个参数和 Object.defineProperty() 中的对象参数一样，可以定义属性的内部特性，并且新添加的属性会遮蔽原对象中的同名属性：
+
+```
+let person = {
+  name: "lin",
+  friends: ["wang", "zhang", "li"]
+}
+
+let copyPerson = Object.create(person, {
+  name: {
+    value: "allan"
+  }
+})
+```
+
+### 寄生式继承（无构造函数）
+
+寄生式继承，在原型式继承的基础上，结合工厂模式，通过一个函数来创建新的继承对象，而不用创建构造函数
+
+```
+function createSon(father) {
+  let son = object(father);
+  son.sayHello = function () {
+    console.log("hello");
+  }
+  return son;
+}
+```
+
+这种继承方式和原型式继承一样，适合不在乎构造函数和类型的场景，但是会导致函数难以重用的问题（每返回一个 son 实例，就会创建一个新的 sayHello 方法）
+
+### 寄生式组合继承
+
+为了解决组合继承的问题，可以使用寄生式组合继承，解决重复调用父类构造函数的问题
+
+```
+function inheritPrototype(son, father) {
+  // 复制父类的原型对象
+  let prototype = object(father.prototype);
+  // 将父类原型对象作为子类的原型对象
+  prototype.constructor = son;
+  son.prototype = prototype;
+}
+```
+
+这个函数是寄生式组合继承的一部分，首先通过寄生式继承的方法复制父类原型对象，然后给 constructor 赋值，解决重写子类原型对象导致 constructor 丢失的问题，最后重写子类的原型对象
+
+寄生式组合继承：
+
+```
+function Father(name) {
+  this.name = name;
+  this.colors = ["red", "yellow"];
+}
+Father.prototype.sayHi = function() {
+  console.log("Hi");
+}
+
+function Son(name, age) {
+  // 盗用构造函数，解决引用值共享问题
+  Father.call(this, name);
+  this.age = age;
+}
+
+// 继承函数，解决重复调用构造函数，而产生的属性重复问题
+inheritPrototype(Son, Father);
+
+Son.prototype.sayHello = function() {
+  console.log("Hello");
+}
+```
+
+和组合继承相同的是，这两种方法都通过盗用构造函数来继承父类构造函数的属性（解决引用值属性在实例间共享的问题）
+
+不同的是，组合继承方法通过调用父类构造函数来继承原型方法，因为盗用构造函数已经对父类构造函数进行调用了，重复的调用会导致父类构造函数中的属性既存在于子类实例中，又存在于子类原型对象中。而寄生式组合继承这种方法通过一个继承函数，对父类原型对象进行复制，并没有调用构造函数，相比组合继承提高了效率，不会在子类实例和子类原型对象中产生同名属性
+
+***寄生式组合继承可以算是引用类型继承的最佳模式***
+
+## 类
+
+上文的创建对象，继承，模拟了类似于类（class-like）的行为，虽然可以实现，但是代码冗长混乱，ES6 提供了 class 关键字，属于一种语法糖解构，本质上仍然是原型和构造函数
+
+### 类定义
+
+类声明：
+
+```
+class Person {};
+```
+
+类表达式：
+
+```
+const Person = class {};
+```
+
