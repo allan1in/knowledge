@@ -310,6 +310,29 @@
     - [寄生式组合继承](#寄生式组合继承)
   - [类](#类)
     - [类定义](#类定义)
+      - [类声明和函数声明的区别](#类声明和函数声明的区别)
+      - [类的构成](#类的构成)
+      - [类表达式的名称](#类表达式的名称)
+    - [类构造函数](#类构造函数)
+      - [实例化](#实例化)
+      - [把类当作特殊函数](#把类当作特殊函数)
+    - [实例、原型和类成员](#实例原型和类成员)
+      - [实例成员](#实例成员)
+      - [原型方法与访问器](#原型方法与访问器)
+      - [静态类方法](#静态类方法)
+      - [非函数原型和类成员](#非函数原型和类成员)
+      - [迭代器与生成器方法（TODO）](#迭代器与生成器方法todo)
+    - [继承](#继承-1)
+      - [继承基础](#继承基础)
+      - [构造函数、HomeObject、super()](#构造函数homeobjectsuper)
+      - [抽象基类](#抽象基类)
+      - [继承内置类型](#继承内置类型)
+      - [类混入](#类混入)
+- [8 代理与反射（TODO）](#8-代理与反射todo)
+- [9 函数](#9-函数)
+  - [箭头函数](#箭头函数)
+  - [函数名](#函数名)
+  - [理解参数](#理解参数)
 
 # 0 资源链接
 
@@ -2800,7 +2823,7 @@ num.map((item, index, array) => item = 0);
 
 ```
 let vals = [1, 2, 3, 4];
-vals.reduce((prev, curr, index, array) => prev + curr);
+vals.reduce((accumulator, curr, index, array) => accumulator + curr);
 // 10
 ```
 
@@ -4285,4 +4308,443 @@ class Person {};
 ```
 const Person = class {};
 ```
+
+#### 类声明和函数声明的区别
+
+可以注意到，类声明方式和函数声明方式相似，但是函数声明可以进行提升，而类声明不可以：
+
+```
+console.log(f);   // f() {}
+function f(){};
+
+console.log(c);   // 报错
+class c {};
+```
+
+函数声明被函数作用域限制，类声明被块作用域限制：
+
+```
+{
+  function f(){};
+  class c {};
+}
+
+console.log(f);   // f() {}
+console.log(c);   // 报错
+```
+
+#### 类的构成
+
+构造函数：
+
+```
+class Person {
+  constructor() {}
+}
+```
+
+获取函数：
+
+```
+class Person() {
+  get myPerson() {}
+}
+```
+
+静态方法：
+
+```
+class Person() {
+  static myPerson() {}
+}
+```
+
+#### 类表达式的名称
+
+类表达式的名称可选，可以通过 name 属性获取类表达式名，但不能在类作用域外部访问这个类名，只能通过变量名访问：
+
+```
+let Person = class PersonName{
+  getClassName() {
+    console.log(PersonName.name, Person.name);
+  }
+}
+
+let p = new Person();
+
+p.getClassName();   // PersonName PersonName
+
+console.log(PersonName.name);   // ReferenceError: PersonName is not defined
+console.log(Person.name);       // PersonName
+```
+
+### 类构造函数
+
+当使用 new 关键字创建一个类的实例时，会调用 constructor 函数，如果没有定义，相当于执行一个空的构造函数
+
+#### 实例化
+
+使用 new 调用类构造函数：
+
+1. 创建新对象
+2. 将新对象的 [[Prototype]] 指向构造函数的 prototype 属性
+3. 将构造函数中的 this 指向新对象
+4. 给新对象赋值
+5. 如果构造函数没有返回非空对象，则返回这个新对象
+
+类构造函数定义时可以设置形参，在创建实例时，可以传入相应的实参
+
+如果返回的对象不是 this 指向的新对象，那么创建的实例和类没有关联
+
+类构造函数和普通构造函数的区别：普通构造函数可以不通过 new 调用，这样 this 会指向全局对象，但类构造函数不使用 new 调用会报错
+
+类构造函数在类被实例化后，仍然是一个方法，它可以通过实例来调用，不过仍然需要 new，不然会报错：
+
+```
+let instance = new Person();
+let instance2 = new instance.constructor(); 
+```
+
+#### 把类当作特殊函数
+
+使用 typeof 可以发现，class 在 JS 中是一种函数
+
+也可以使用 instanceof 检测一个对象是否是某个类的实例，但是不同于普通构造函数，如果对类构造函数使用 instanceof，会返回相反的布尔值
+
+类可以定义在任何地方，比如数组，也可以被当作参数传递
+
+和自执行函数一样，类也可以立即实例化：
+
+```
+let p = new class Person {
+  constructor(a) {
+    console.log(a)
+  }
+}('hello');
+// hello
+```
+
+### 实例、原型和类成员
+
+#### 实例成员
+
+成员：即属性
+
+类构造函数会给每一个实例添加自有属性，对于同一个类，每个实例都有各自的属性（引用值也相互独立），即实例之间不会共享成员
+
+#### 原型方法与访问器
+
+为了在实例之间共享方法，可以通过在类块中定义方法，这种方法会被定义在类的原型上：
+
+```
+class Person {
+  constructor() {
+    this.locate = () => console.log('instance');
+  }
+  // 定义原型上的方法
+  locate() {
+    console.log("prototype");
+  }
+}
+
+let p = new Person();
+
+// 实例自有方法
+p.locate();                 // instance
+// 原型共享方法
+p.__proto__.locate();       // prototype
+Person.prototype.locate();  // prototype
+```
+
+方法可以定义在类块中共享，但是不能直接在类块中定义属性
+
+类方法等同于对象属性，因此可以将 Symbol、字符串、计算值作为方法名：
+
+```
+let symbolKey = new Symbol('symbolKey');
+
+class Person {
+  stringKey(){}
+  [symbolKey](){}
+  ['compute'+'Key'](){}
+}
+```
+
+和普通对象一样，类也可以定义访问器（get set 方法）
+
+#### 静态类方法
+
+每个类只能有一个静态方法，静态方法不用创建实例，可以通过类直接调用，非常适合作为实例工厂：
+
+```
+class Person {
+  static create() {
+    return new Person();
+  }
+}
+
+Person.create()
+```
+
+#### 非函数原型和类成员
+
+类块中不能直接定义属性，但是可以手动在类块外创建原型上的属性：
+
+```
+class Person {
+  sayName() {
+    console.log(Person.greeting, this.name);
+  }
+}
+
+Person.greeting = "My name is";
+Person.prototype.name = "Lin";
+
+let p = new Person();
+p.sayName();    // My name is Lin
+```
+
+类定义中没有提供显示支持添加属性的方法，因为在共享目标（类和原型）上添加可修改的数据成员是一种反模式
+
+#### 迭代器与生成器方法（TODO）
+
+### 继承
+
+类的继承依然通过原型链实现
+
+#### 继承基础
+
+ES6 支持单继承，通过 extends 可以继承拥有 [[constructor]] 和原型的对象。这意味着不仅可以继承类，也可以继承构造函数
+
+```
+class Person {}
+class Chinsese extends Person {
+  ...
+}
+
+function Person() {}
+class Chinsese extends Person {
+  ...
+}
+```
+
+通过 instanceof 可以判断实例是否属于某个类或者其子类
+
+子类可以直接访问父类的方法，但 this 指向会反应实例的创建者
+
+继承可以在类表达式中使用：
+
+```
+let Chinese = class extends Person {}
+```
+
+#### 构造函数、HomeObject、super()
+
+在类构造函数中可以通过 `super()` 或 `super.constructor()` 调用父类的类构造方法
+
+在静态方法中也可以通过 `super.funcName()` 调用父类中名为 funcName() 的静态方法
+
+super 注意事项：
+
+- 只能在类构造函数或静态方法中使用
+- 不能单独调用 super 会报错
+- 调用父类方法会将返回的实例赋值给子类的 this
+- 如果父类构造方法有形参，super() 方法可以传参
+- 如果子类没有类构造方法，实例化时会调用 super()
+- 类构造函数中，不能在 super() 之前调用 this
+- 子类中如果显示定义构造函数，在构造函数中，要么必须调用 super()，要么必须返回一个对象
+
+#### 抽象基类
+
+JS 没有提供类似于 java 中接口的抽象基类，但可以通过 new.target 实现，new.target 保存了 new 调用的类或构造函数：
+
+```
+class Person {
+  constructor() {
+    // 接口不能被实例化
+    if(new.target === Person) {
+      throw new Error('Person cannot be directly instantiated');
+    }
+    // 实现类必须实现 foo 方法
+    if(!this.foo) {
+      throw new Error('Inheriting class must define foo()');
+    }
+  }
+}
+```
+
+#### 继承内置类型
+
+Array、String 等内置类型也支持继承，可以通过继承给内置类型添加原型方法
+
+有些内置类型的方法会返回这个内置类型的实例，一般情况，返回实例的类型和调用方法的实例类型是一样的：
+
+```
+class SuperArray extends Array {}
+
+let a1 = new SuperArray(1, 2, 3);
+// 调用 filter 过滤数组，!! 作用是将 number 转为 boolean
+let a2 = a1.filter(i => !!(i%2));
+
+console.log(a1 instanceof SuperArray);  // true
+// a2 是 a1 调用 filter 返回的实例，可以发现 a2 的类型和 a1 保持一致
+console.log(a2 instanceof SuperArray);  // true
+```
+
+也可以覆盖这种行为：
+
+```
+class SuperArray extends Array {
+  // [Symbol.species] 的 get 访问器负责返回类型
+  static get [Symbol.species]() {
+    return Array;
+  }
+}
+```
+
+#### 类混入
+
+Object.assign() 方法可以合并对象，对于类没有提供特定方法，但是也可以实现混入：
+
+```
+// 定义基类
+class Base {}
+
+// 定义三个混入类
+let PartOne = (SuperClass) => class extends SuperClass {
+  one() {
+    console.log("one")
+  }
+}
+let PartTwo = (SuperClass) => class extends SuperClass {
+  two() {
+    console.log("two")
+  }
+}
+let PartThree = (SuperClass) => class extends SuperClass {
+  three() {
+    console.log("three")
+  }
+}
+
+// 混入方法
+function mix(BaseClass, ...Mixins) {
+  // 对每个参数进行累加操作
+  return Mixins.reduce((accumulator, current) => current(accumulator), BaseClass)
+}
+
+// 这里通过继承一个构造函数，在实例化时会自动调用 mix 构造函数
+class Countries extends mix(Base, PartOne, PartTwo, PartThree) {}
+
+let c = new Countries();
+c.one();    // one
+c.two();    // two
+c.three();  // three
+```
+
+虽然可以通过继承方法实现混入，但是在设计模式中：组合胜于继承（Composition over inheritance），因此 JS 框架中大多抛弃了混入模式，使用组合模式
+
+# 8 代理与反射（TODO）
+
+# 9 函数
+
+函数本质是对象，每个函数都是 Function 对象的实例，所以函数名是指向函数对象的指针
+
+函数声明（末尾不需要分号）：
+
+```
+function f(a, b){
+  return a+b;
+}
+```
+
+函数表达式：
+
+```
+let f = function(a, b) {
+  return a+b;
+};
+```
+
+箭头函数：
+
+```
+let f = () => {
+  return a+b;
+}
+```
+
+构造函数（不推荐，性能差）：
+
+```
+let f = new Function("a", "b", "return a+b");
+```
+
+## 箭头函数
+
+箭头函数相比函数声明，更简洁，任何函数声明都可以用箭头函数表示
+
+如果只有一个参数，括号可以省略：
+
+```
+let double = x => {return x * 2};
+```
+
+如果函数体只返回一个表达式或者一句赋值语句，可以省略 return 和大括号，会隐式地返回这行代码的值：
+
+```
+let sum = (a, b) => a + b;
+```
+
+## 函数名
+
+函数名就是指向函数的指针，所以函数可以有多个函数名：
+
+```
+function f() {
+  cnosole.log("hi");
+}
+
+let f2 = f;
+f();    // hi
+f2();   // hi
+```
+
+所有函数对象都有一个只读的属性 name，用于表示函数名，如果是匿名函数，那么 name 的值为空字符串，如果是使用 Function() 创建的，name 值为 "anonymous"
+
+对于 get set 函数，需要加上 get set 前缀：
+
+```
+let dog = {
+  age: 1,
+  get age() {
+    return this.age;
+  },
+  set age(newAge) {
+    this.age = newAge;
+  }
+}
+
+let propertyDescriptor = Object.getOwnPropertyDescriptor(dog, "age");
+console.log(propertyDescriptor.get.name);   // get age
+console.log(propertyDescriptor.set.name);   // set age
+```
+
+## 理解参数
+
+ES 中没有验证命名参数（形参）的机制，形参的作用仅在于方便理解和操作，所以在定义函数时，可以不写形参，通过 arguments 对象接收参数，arguments 是一个类数组对象，用于存储所有的参数
+
+通过 arguments 打印所有参数：
+
+```
+function f() {
+  for(let i = 0;i<arguments.length;i++){
+    console.log(arguments[i]);
+  }
+}
+```
+
+虽然 ES 没有提供参数的重载，但是可以通过 arguments 判断参数个数，从而实现重载
+
+arguments 可以和命名参数在函数中同时使用
 
