@@ -4732,7 +4732,7 @@ console.log(propertyDescriptor.set.name);   // set age
 
 ## 理解参数
 
-ES 中没有验证命名参数（形参）的机制，形参的作用仅在于方便理解和操作，所以在定义函数时，可以不写形参，通过 arguments 对象接收参数，arguments 是一个类数组对象，用于存储所有的参数
+ES 中没有验证命名参数（形参）的机制，形参的作用仅在于方便理解和操作，所以在定义函数时，可以不写形参，而是通过 arguments 对象接收参数。arguments 是一个类数组对象，用于存储所有的参数
 
 通过 arguments 打印所有参数：
 

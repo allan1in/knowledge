@@ -43,7 +43,12 @@
     - [有编译器版本？无编译器版本？](#有编译器版本无编译器版本)
   - [组件](#组件)
 - [Vue 工程化](#vue-工程化)
-  - [](#)
+  - [工程化工具](#工程化工具)
+    - [Vite](#vite)
+    - [Sass](#sass)
+    - [PostCSS](#postcss)
+    - [ESLint](#eslint)
+  - [create-vue](#create-vue)
 
 
 # 使用 Vue
@@ -755,4 +760,146 @@ vm.mount("#app")
 
 # Vue 工程化
 
-## 
+## 工程化工具
+
+### Vite
+
+[官方文档](https://cn.vitejs.dev/guide/)
+
+打包工具（bunder），用于压缩项目文件，以投入生产环境
+
+优势：
+
+- 对于大型项目，打包速度快
+- 支持许多第三方库
+- 易拓展
+
+在空目录运行命令，初始化 vite 项目：
+
+```
+npm create vite@latest
+```
+
+vite 为 JS 或其他框架提供了模板，[所有模板](https://vitejs.dev/guide/#trying-vite-online)
+
+vite 中 js 文件可以通过 import 导入非 js 类型的文件
+
+vite 提供的指令：
+
+- dev：开发环境使用，在本地运行项目，实时更新
+- build：将项目打包到 dist 目录，目录中文件可以直接投入生产环境
+- preview：在本地服务器运行 dist 目录下打包好的项目，不会实时更新
+
+### Sass
+
+一种 CSS 预处理语言，运行时需要将 sass/scss 文件编译为 css 文件，是 css 的超集
+
+安装
+
+```
+npm install sass --save-dev
+```
+
+`--save-dev` 指定 sass 保存到开发依赖中（devDependencies）
+
+在 vite 中可以通过在 main.js 文件中使用 import 直接导入 sass 文件，vite 会自行编译打包
+
+### PostCSS
+
+在编写完 CSS 后对其进行处理
+
+PostCSS 有许多插件，用于提供各种功能：
+
+autoprefixer 插件用于为 CSS 添加浏览器供应商前缀（-webkit- 等）
+
+```
+npm install autoprefixer --save-dev
+```
+
+vite 中内置了 PostCSS，需要通过在根目录创建 postcss.config.cjs 文件来激活
+
+```
+module.exports = {
+    plugins: [require('autoprefixer')]
+}
+```
+
+这个文件对 postcss 进行配置，使用 autoprefixer 插件
+
+### ESLint
+
+ESlint 提供了许多规则，以检查代码格式是否符合规范
+
+安装 eslint：
+
+```
+npm install eslint --save-dev
+```
+
+安装 [globals](https://www.npmjs.com/package/globals)（用于在 eslint 中配置 JS 运行环境）
+
+```
+npm install globals --save-dev
+```
+
+由于 vite 中没有集成 ESlint，必须通过社区插件将 ESlint 集成到工作流中：
+
+[vite-plugin-eslint](https://www.npmjs.com/package/vite-plugin-eslint)
+
+```
+npm install vite-plugin-eslint --save-dev
+```
+
+[vite 配置插件](https://cn.vitejs.dev/guide/using-plugins.html#adding-a-plugin)： 在根目录创建 vite.config.js 以配置 ESlint
+
+```
+import { defineConfig } from 'vite'
+import eslint from 'vite-plugin-eslint'
+
+export default defineConfig({
+  plugins: [eslint()]
+})
+```
+
+还需要配置 eslint，创建文件 eslint.config.js
+
+```
+import globals from "globals";
+
+export default [{
+    languageOptions: {
+        globals: {
+            ...globals.browser,
+        },
+
+        ecmaVersion: 2022,
+        sourceType: "module",
+    },
+
+    rules: {
+        // 当使用单引号时会报错
+        quotes: "error",
+    },
+}];
+```
+
+这时启动项目，就可以看到 eslint 的报错，列举了检查出的错误
+
+为了更直观地在编辑器中看到错误，安装 vscode 插件：ESlint
+
+eslint 支持强制修复这些错误，这需要在 package.json 文件中配置指令。比如，修复 main.js 文件中的错误 `"lint": "eslint main.js --fix"`，配置完成后再控制台执行 `npm run init` 执行指令
+
+## create-vue
+
+[create-vue](https://github.com/vuejs/create-vue) 是 Vue 官方提供的构建工具，用于 Vue 项目的初始化构建，通过 create-vue 可以根据你的需要快速初始化一个 Vue 项目
+
+初始化：
+
+```
+npm create vue@latest
+```
+
+create-vue 创建的项目中，使用的是无编译器的 vue 版本，这意味着我们需要去手动实现 render 函数，但是 vite 帮我们完成了这些工作，所有 .vue 后缀文件（SFC，单文件组件）会被编译为组件对象，对象中实现了 render 函数。单文件组件提供了一种方式，可以便捷地编写组件，所有幕后的工作都由 vite 和 vue 完成
+
+main.js 文件，是项目的入口文件，文件进行了 createApp() 以及 mount() 操作，传入 createApp() 的参数就是名为 App.vue 的根组件，这正是由于 SFC 被编译为了对象
+
