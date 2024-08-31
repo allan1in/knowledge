@@ -49,6 +49,25 @@
     - [PostCSS](#postcss)
     - [ESLint](#eslint)
   - [create-vue](#create-vue)
+  - [组件](#组件-1)
+    - [SFC](#sfc)
+    - [组件注册方式](#组件注册方式)
+    - [组件使用](#组件使用)
+    - [组件样式](#组件样式)
+      - [scoped-css](#scoped-css)
+      - [Sass](#sass-1)
+    - [组件传值](#组件传值)
+      - [父传子](#父传子)
+      - [子传父](#子传父)
+        - [事件传值](#事件传值)
+        - [函数传值](#函数传值)
+      - [props 校验](#props-校验)
+    - [组件插槽](#组件插槽)
+      - [具名插槽](#具名插槽)
+    - [动态组件](#动态组件)
+  - [动画](#动画)
+    - [CSS 过渡](#css-过渡)
+    - [CSS 动画](#css-动画)
 
 
 # 使用 Vue
@@ -902,4 +921,441 @@ npm create vue@latest
 create-vue 创建的项目中，使用的是无编译器的 vue 版本，这意味着我们需要去手动实现 render 函数，但是 vite 帮我们完成了这些工作，所有 .vue 后缀文件（SFC，单文件组件）会被编译为组件对象，对象中实现了 render 函数。单文件组件提供了一种方式，可以便捷地编写组件，所有幕后的工作都由 vite 和 vue 完成
 
 main.js 文件，是项目的入口文件，文件进行了 createApp() 以及 mount() 操作，传入 createApp() 的参数就是名为 App.vue 的根组件，这正是由于 SFC 被编译为了对象
+
+## 组件
+
+### SFC
+
+单文件组件是 Vue 工程中的一种特殊文档，结构如下：
+
+```
+<template></template>
+<script></script>
+<style></style>
+```
+
+script 中暴露一个对象，用于配置组件的 API：
+
+```
+<script>
+export default {
+    name: 'App',
+    data() {
+        return {
+            message: "Hello World"
+        }
+    }
+}
+</script>
+```
+
+关于属性 name，用于给组件命名，在开发者工具中调试时可以看到组件名称
+
+一个 SFC 就是一个组件，Vue 会自动将其编译为组件对象
+
+### 组件注册方式
+
+全局注册，可以在任何 SFC 中使用组件，在 main.js 中完成注册：
+
+```
+import { createApp } from 'vue'
+import App from './App.vue'
+import Greeting from '@/components/Greeting.vue'
+
+const vm = createApp(App)
+
+// 字符串是组件名称，第二个参数是组件对象
+vm.component("Greeting", Greeting)
+
+vm.mount('#app')
+```
+
+本地注册，在 SFC 中注册组件:
+
+```
+<script>
+import Greeting from '@/components/Greeting.vue'
+
+export default {
+  name: 'App',
+  components: {
+    Greeting
+  }
+}
+</script>
+```
+
+通过给 components 属性传入一个对象，以键值对的方式配置组件，这里的 `Greeting` 是 `Greeing: Greeting` 的缩写，键是组件名称，值是导入的组件对象
+
+### 组件使用
+
+在 template 标签中直接使用组件标签：
+
+```
+<template>
+  <greeting></greeting>
+</template>
+```
+
+组件的标签名首字母可以小写，并且对于驼峰命名的组件名，可以写为小写字母连字符格式的名称，Vue 会自动转换
+
+[组件名格式](https://cn.vuejs.org/guide/components/registration.html#component-name-casing)
+
+### 组件样式
+
+style 标签中可以添加 CSS 样式
+
+#### scoped-css
+
+给 style 标签添加 scoped 属性可以保证 css 只在当前 SFC 中生效
+
+```
+<style scoped>
+    ...
+</style>
+```
+
+Vue 会为应用 css 的 html 标签添加一个特殊的属性标识，同时为标签中的所有 css 添加这个特殊属性的选择器，这样保证 css 只应用于当前文件中
+
+[更多关于 scoped-css 介绍](https://cn.vuejs.org/api/sfc-css-features.html#scoped-css)
+
+#### Sass
+
+npm 安装 sass 之后就可以在 SFC 中使用 scss/sass 编写 css，只需要配置 style 标签的 lang 属性：
+
+```
+<style scoped lang="scss">
+$font-color: #cc4444;
+
+p {
+    color: $font-color;
+}
+</style>
+```
+
+### 组件传值
+
+Vue 没有为兄弟组件提供直接传值的方式，但是可以进行父子组件传值：
+
+#### 父传子
+
+父组件传给子组件 age 数据，子组件接收的 age 可当作 data 使用，并且会随父组件的 data 更新
+
+父组件 App.vue
+
+```
+<template>
+  <user :age="age"></user>
+</template>
+<script>
+import User from '@/components/User.vue'
+
+export default {
+  name: 'App',
+  components: {
+    User
+  },
+  data() {
+    return {
+      age: 20
+    }
+  }
+}
+</script>
+```
+
+子组件 User.vue
+
+```
+<template>
+    <p>
+        The user is {{ age }} years old
+    </p>
+</template>
+<script>
+export default {
+    name: 'User',
+    props: ["age"]
+}
+</script>
+```
+
+#### 子传父
+
+##### 事件传值
+
+子传父可以间接实现兄弟间传值：
+
+子组件 Greeting.vue
+
+```
+<template>
+    <button @click="onClickChange">Update Age</button>
+</template>
+
+<script>
+export default {
+    name: 'Greeting',
+    props: ["age"],
+    // 对传递事件的方法进行注册，便于 Vue 记录
+    emits: ['age-change'],
+    methods: {
+        onClickChange() {
+            this.$emit('age-change', 30)
+        }
+    }
+}
+</script>
+```
+
+父组件 App.vue
+
+```
+<template>
+  <user :age="age"></user>
+  <greeting :age="age" @age-change="updateAge"></greeting>
+</template>
+<script>
+import Greeting from '@/components/Greeting.vue'
+import User from '@/components/User.vue'
+
+export default {
+  name: 'App',
+  components: {
+    Greeting,
+    User
+  },
+  data() {
+    return {
+      age: 20
+    }
+  },
+  methods: {
+    updateAge(num) {
+      this.age = num
+    }
+  }
+}
+</script>
+```
+
+以上示例通过子组件中的按钮触发事件，将事件以及参数传递到父组件，并在父组件中通过方法修改 age 的值，age 的更新会影响到 User 组件中 age 的值，这样通过父组件间接实现了兄弟组件之间的传值
+
+虽然不能再子组件中修改父组件传递的值（props），但是可以通过计算属性对 props 进行加工
+
+##### 函数传值
+
+可以通过 props 将父组件中定义的函数，传递给子组件，并在子组件中调用这个函数，并传递参数给父组件，由于函数是父组件的，这种操作不会被阻止
+
+还是建议采用事件传值，因为在开发者工具中可以对事件进行跟踪，便于调试
+
+#### props 校验
+
+如果要对传入的 props 进行限制，可以给 props 传入一个对象，在对象中进行数据类型、是否必须、默认值、校验器方法等配置
+
+```
+props: {
+    type: [String, Number],
+    required: true,
+    default: 30,
+    // 校验器方法会接收传入的数据，并判断返回布尔值，true 表示通过
+    validator(val) {
+        return val < 100;
+    }
+}
+```
+
+validator 方法在组件实例创建之前就存在，这意味着不能在 validator 中调用 data 或 methods 中定义的数据和方法
+
+如果传入的 props 没有通过校验，会在控制台进行 warn
+
+[这个示例](https://cn.vuejs.org/guide/components/props.html#prop-validation) 展示了 props 校验的所有用法
+
+### 组件插槽
+
+插槽提高了组件的可重用性
+
+子组件 Form.vue：
+
+```
+<template>
+    <form>
+        <slot>Default content</slot>
+    </form>
+</template>
+```
+
+slot 标签提供了一个插槽，允许其父组件在组件标签内传入 html，slot 标签内是默认内容，当父组件没有传入 html 内容时显示
+
+父组件 App.vue:
+
+```
+<template>
+  <app-form>
+    <div class="help">
+      <p>Help text</p>
+    </div>
+  </app-form>
+  <app-form></app-form>
+</template>
+<script>
+import AppForm from "@/components/Form.vue"
+export default {
+  name: 'App',
+  components: {
+    AppForm
+  }
+}
+</script>
+```
+
+父组件在 app-form 标签内传入 html，这些标签会被插入到子组件的 slot 标签位置
+
+#### 具名插槽
+
+子组件 Form.vue：
+
+```
+<template>
+    <form>
+        <slot name="help"></slot>
+        <slot></slot>
+    </form>
+</template>
+```
+
+父组件 App.vue:
+
+```
+<template>
+  <app-form>
+    <template v-slot:help>
+      <div class="help">
+        <p>Help text</p>
+      </div>
+    </template>
+    <p>Normal slot content</p>
+  </app-form>
+</template>
+<script>
+import AppForm from "@/components/Form.vue"
+export default {
+  name: 'App',
+  components: {
+    AppForm
+  }
+}
+</script>
+```
+
+父组件中通过 `<template v-slot:help>` 标签指定具名插槽，并在这个插槽中传入内容，对于在 template 标签外的内容，会被传入普通插槽的位置
+
+父组件中传入插槽的 html 内容可以直接使用 data 或 methods 等配置的属性或方法，而不用通过组件传值
+
+[更多插槽介绍](https://cn.vuejs.org/guide/components/slots.html#slots)
+
+### 动态组件
+
+父组件：
+
+```
+<template>
+  <select v-model="componentName">
+    <option value="Home">Home</option>
+    <option value="About">About</option>
+  </select>
+
+  <KeepAlive>
+    <component :is="componentName"></component>
+  </KeepAlive>
+</template>
+
+<script>
+import Home from "@/components/Home.vue"
+import About from "@/components/About.vue"
+export default {
+  name: 'App',
+  data() {
+    return {
+      componentName: 'Home'
+    }
+  },
+  components: {
+    Home,
+    About
+  }
+}
+</script>
+```
+
+通过 component 标签可以根据 is 属性绑定的值切换组件，组件隐藏时会触发 unmounted() 钩子，组件显示时触发 mounted() 钩子
+
+keepalive 标签保证组件一直保存在内存中，不会被销毁，组件在展示时触发 activated() 钩子，被隐藏时触发 deactiveted() 钩子
+
+## 动画
+
+### CSS 过渡
+
+Vue 提供了内置组件 transition ，实现 CSS 过渡
+
+为一个 transition 标签设置 name 属性，并通过特定类名的 css 实现过渡 
+
+进入动画（ * 是在 transition 标签中定义的名称）：
+
+- *-enter-from，进入的起始帧
+- *-enter-to，进入完成的最终帧
+- *-enter-active，进入过程，一般用于定义动画速率
+
+离开动画：
+
+- *-leave-from
+- *-leave-to
+- *-leave-active
+
+示例：
+
+```
+<template>
+  <button type="button" @click="flag = !flag">Toggle</button>
+  
+  <transition name="fade" mode="out-in">
+    <h2 v-if="flag">Hello</h2>
+    <h2 v-else>Hi</h2>
+  </transition>
+
+</template>
+
+<script>
+export default {
+  name: 'App',
+  data() {
+    return {
+      flag: false
+    }
+  }
+}
+</script>
+
+<style>
+.fade-enter-from {
+  opacity: 0;
+}
+
+.fade-enter-active {
+  transition: all .25s linear;
+}
+
+.fade-leave-active {
+  transition: all .25s linear;
+}
+
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
+```
+
+关于 transition 标签的 mode 属性，默认值是 in-out，表示进入动画和退出动画同时执行，这里设置为 out-in，表示退出动画执行完毕后再执行进入动画
+
+### CSS 动画
 
