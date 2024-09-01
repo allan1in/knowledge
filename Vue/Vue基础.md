@@ -65,9 +65,12 @@
     - [组件插槽](#组件插槽)
       - [具名插槽](#具名插槽)
     - [动态组件](#动态组件)
-  - [动画](#动画)
-    - [CSS 过渡](#css-过渡)
-    - [CSS 动画](#css-动画)
+  - [transition](#transition)
+    - [过渡](#过渡)
+    - [动画](#动画)
+    - [事件钩子](#事件钩子)
+    - [transition-gruop](#transition-gruop)
+    - [Animate.css](#animatecss)
 
 
 # 使用 Vue
@@ -1292,9 +1295,9 @@ export default {
 
 keepalive 标签保证组件一直保存在内存中，不会被销毁，组件在展示时触发 activated() 钩子，被隐藏时触发 deactiveted() 钩子
 
-## 动画
+## transition
 
-### CSS 过渡
+### 过渡
 
 Vue 提供了内置组件 transition ，实现 CSS 过渡
 
@@ -1357,5 +1360,156 @@ export default {
 
 关于 transition 标签的 mode 属性，默认值是 in-out，表示进入动画和退出动画同时执行，这里设置为 out-in，表示退出动画执行完毕后再执行进入动画
 
-### CSS 动画
+### 动画
+
+可以在 *-enter-acive 或 *-leave-acive 中添加动画属性，这样可以自定义进入和离开的动画
+
+如果 *-enter-acive 或 *-leave-acive 中同时有 transition 和 animation 属性，并且它们的时长不一样，可以通过给 transition 标签添加 type="transition" 或 type="animation" 指定过渡的时间
+
+transition 标签有 apppear 属性，设置后可以在页面第一次展示时加载进入动画
+
+[更多 transition 介绍](https://cn.vuejs.org/api/built-in-components.html#transition)
+
+### 事件钩子
+
+Vue 为动画提供了许多 [事件钩子](https://cn.vuejs.org/guide/built-ins/transition#javascript-hooks)，可以在钩子函数中使用 Web Animation API 实现动画
+
+```
+<template>
+  <button type="button" @click="flag = !flag">Toggle</button>
+  <transition @enter="enter" @leave="leave" :css="false">
+    <h2 v-if="flag">Hello</h2>
+  </transition>
+</template>
+
+<script>
+export default {
+  name: 'App',
+  data() {
+    return {
+      flag: false
+    }
+  },
+  methods: {
+    enter(el, done) {
+      const animation = el.animate([{ transform: "scale3d(0,0,0)" }, {}], {
+        duration: 1000
+      })
+
+      animation.onfinish = () => {
+        done()
+      }
+    },
+    leave(el, done) {
+      const animation = el.animate([{}, { transform: "scale3d(0,0,0)" }], {
+        duration: 1000
+      })
+
+      animation.onfinish = () => {
+        done()
+      }
+    }
+  }
+}
+</script>
+```
+
+:css="false" 属性可以告诉 Vue 不检查 CSS 动画，直接使用 JS 动画
+
+:css 属性默认值是 true，这样就算没有定义 JS 动画，Vue 也可以通过 CSS 动画知道何时调用事件钩子函数，并且 enter 和 leave 钩子不用再传递 done 回调函数（用于通知 Vue 动画完成）
+
+关于 [transition 属性](https://cn.vuejs.org/api/built-in-components.html#transition)
+
+### transition-gruop
+
+transition-group 标签专门用于为循环列表提供动画，它的属性和 transition 基本一致，transition-group 不能设置 mode 属性
+
+示例：点击 Add 按钮，会随机在列表中添加一项，点击列表项，这个列表项会消失
+
+```
+<template>
+  <button @click="addItem">Add</button>
+  <ul>
+    <transition-group name="fade">
+      <li v-for="(number, index) in numbers" :key="number" @click="removeItem(index)">
+        {{ number }}
+      </li>
+    </transition-group>
+  </ul>
+</template>
+```
+
+这样虽然实现了每个列表项的动画（fade），但是当新列表项出现，下方列表项向下移动的过程却没有动画，可以通过在 css 中添加 fade-move 类实现
+
+```
+.fade-move {
+    transition: all 1s linear;
+}
+```
+
+列表项删除时，下方列表项向上移动仍然没有动画，可以设置 fade-leave-active 解决问题：
+
+```
+fade-leave-active {
+    position: absolute;
+}
+```
+
+这样做会让列表项在退出动画过程中不再占据空间，下方列表项就不再需要等待上方列表项完全消失，可以执行 fade-move 过渡动画
+
+### Animate.css
+
+流行动画库，[官网](https://animate.style/)，可以通过 npm 或 cdn 引入
+
+transition 标签提供了属性，可以自定义 CSS 动画类的名称：
+
+```
+ /**
+   * 用于自定义过渡 class 的 prop。
+   * 在模板中使用短横线命名，例如：enter-from-class="xxx"
+   */
+  enterFromClass?: string
+  enterActiveClass?: string
+  enterToClass?: string
+  appearFromClass?: string
+  appearActiveClass?: string
+  appearToClass?: string
+  leaveFromClass?: string
+  leaveActiveClass?: string
+  leaveToClass?: string
+```
+
+比如在上文的示例基础上改造：
+
+```
+<template>
+  <button @click="addItem">Add</button>
+  <ul>
+    <transition-group name="fade" 
+      enter-active-class="animate__animated animate__bounceIn" 
+      leave-active-class="animate__animated animate__bounceOut"
+    >
+      <li v-for="(number, index) in numbers" :key="number" @click="removeItem(index)">
+        {{ number }}
+      </li>
+    </transition-group>
+  </ul>
+</template>
+```
+
+覆盖默认的动画时长：
+
+```
+.animate__animated {
+    animation-duration: 1.5s;
+}
+```
+
+保证删除列表项的同时，下方列表项上移会应用 fade-move 过渡动画：
+
+```
+.animate__bounceOut {
+    position: absolute;
+}
+```
 
