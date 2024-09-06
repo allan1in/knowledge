@@ -89,7 +89,7 @@
     - [for](#for)
     - [for-in](#for-in)
     - [for-of](#for-of)
-    - [标签、break和continue](#标签break和continue)
+    - [标签、break 和 continue](#标签break-和-continue)
     - [with](#with)
     - [switch](#switch)
   - [函数](#函数)
@@ -342,10 +342,10 @@
 
 ## 历史
 
-- 1995年，网景公司 Brendan Eich 开放了脚本语言 Mocha（后改名 LiveScript）
+- 1995 年，网景公司 Brendan Eich 开放了脚本语言 Mocha（后改名 LiveScript）
 - 网景公司与 Sun 公司合作开发 LiveScript，并改名 JavaScript
 - 微软发布 JScript，两个版本的并存产生冲突
-- 1997年，JavaScript 被提交给 ECMA，ECMA（欧洲计算机制造商协会）打造出新的语言标准 ECMA-262，即 ECMAScript
+- 1997 年，JavaScript 被提交给 ECMA，ECMA（欧洲计算机制造商协会）打造出新的语言标准 ECMA-262，即 ECMAScript
 - 此后，各家浏览器均以 ECMAScript 为标准作为 JavaScript 的实现依据
 
 ## JavaScript 实现
@@ -363,7 +363,7 @@ JavaScript 的语言标准
 #### 重要版本
 
 - ES3，支持了所有基础语法，ECMAScript 真正成为了一种编程语言
-- ES6，新增Promise、类、迭代器、模块、箭头函数以及新数据类型等内容（之后一年更新一个版本）
+- ES6，新增 Promise、类、迭代器、模块、箭头函数以及新数据类型等内容（之后一年更新一个版本）
 
 ### DOM
 
@@ -371,7 +371,7 @@ JavaScript 的语言标准
 
 历史：
 
-- 微软与网景采用不同的思路开发 DHTML（动态HTML）
+- 微软与网景采用不同的思路开发 DHTML（动态 HTML）
 - 万维网联盟（W3C, World Wide Web Consortium）开始制定 DOM 标准
 - DOM 版本，从 DOM LEVEL 1 到 DOM LEVEL 3 ，直到最新版本 DOM4，这是一个动态标准，这意味着以后会一直在此版本上更新
 
@@ -455,8 +455,8 @@ js 中可以使用 DOM 添加 \<script> 标签，这种方式添加的 js 默认
 
 标识符，是函数、变量、属性、参数的名称，必须满足以下规则：
 
-- 第一个字符必须是下划线（_）、字母或 $ 
-- 剩下的字符可以是数字、下划线（_）、字母或 $ 
+- 第一个字符必须是下划线（\_）、字母或 $
+- 剩下的字符可以是数字、下划线（\_）、字母或 $
 
 最佳实践：
 
@@ -474,7 +474,7 @@ ES5 增加了严格模式，开启严格模式，需要在开头加一行：
 "use strict";
 ```
 
-这是一个预处理指令，任何支持JS的引擎都会切换到严格模式，严格模式会有更多的保留字
+这是一个预处理指令，任何支持 JS 的引擎都会切换到严格模式，严格模式会有更多的保留字
 
 ### 语句
 
@@ -663,7 +663,7 @@ Boolean() 函数可以将其他类型的值转换为布尔值，满足以下规�
 
 #### 进制数
 
-JS 中可以有 +0 和 -0，但是这两种都等同于 0 
+JS 中可以有 +0 和 -0，但是这两种都等同于 0
 
 十进制：
 
@@ -709,19 +709,19 @@ console.log(a + b == 0.3); // 结果为 false
 
 因为 JS 采用的 IEEE 754 数值规则：
 
-单精度浮点数（32位）包括：1位符号位 8位指数位 23位符号位
+单精度浮点数（32 位）包括：1 位符号位 8 位指数位 23 位符号位
 
 如何存贮浮点数？
 
 - 0.1 被转为二进制 0.000110011...（无限循环）
-- 二进制转换为科学计数法：1.100110011... * 2^-4
-- 因此符号位： 0（正数），指数位：0111 1111（127+（-4）= 123，再将123转换成二进制），数值位：1001 1001 1001 1001 1001 100（超过了23位，多余的省略）
+- 二进制转换为科学计数法：1.100110011... \* 2^-4
+- 因此符号位： 0（正数），指数位：0111 1111（127+（-4）= 123，再将 123 转换成二进制），数值位：1001 1001 1001 1001 1001 100（超过了 23 位，多余的省略）
 
 在对 0.1 进行存贮的过程中，精度丢失，因此 0.1 会有细微的偏差，可以讨论以下它在丢失精度后的值是多少：
 
 - 符号位：0，正数
 - 指数位：0111 1111，转为十进制是 123，123 - 127 = -4
-- 数值位：1001 1001 1001 1001 1001 100，结合指数位得到：1.1001 1001 1001 1001 1001 100 * 2^-4，即0.0001 1001 1001 1001 1001 1001 100
+- 数值位：1001 1001 1001 1001 1001 100，结合指数位得到：1.1001 1001 1001 1001 1001 100 \* 2^-4，即 0.0001 1001 1001 1001 1001 1001 100
 - 转为十进制：0.0999999940395355
 
 可见，虽然存储的是 0.1，但是一旦参与运算，0.1 实际上是 0.0999999940395355
@@ -906,7 +906,7 @@ num = -num;  // -2
 
 ### 位操作符
 
-ECMAscript 采用 IEEE 754 64位格式存储数值，但位操作只采用 32 位，之后再把结果转换为 64 位。对于开发者，只有 32 位整数。
+ECMAscript 采用 IEEE 754 64 位格式存储数值，但位操作只采用 32 位，之后再把结果转换为 64 位。对于开发者，只有 32 位整数。
 
 #### 按位非
 
@@ -950,7 +950,7 @@ let val = 2 << 5; // 64
 
 左移会保留正负号
 
-数值 m 左移 n 位 = m * 2^n
+数值 m 左移 n 位 = m \* 2^n
 
 #### 右移
 
@@ -1017,7 +1017,7 @@ preob 包含首选的值，backob 包含备用的值
 
 ### 指数操作符
 
-ES7 新增 **
+ES7 新增 \*\*
 
 ```
 3 ** 2;           // 9
@@ -1199,7 +1199,7 @@ for-of 会按照可迭代对象的 next() 方法产生值的顺序迭代元素
 
 如果尝试迭代的元素不支持迭代，会抛出错误
 
-### 标签、break和continue
+### 标签、break 和 continue
 
 - break：退出当前这一层的循环
 - continue：跳过当前这一层的本次循环
@@ -1207,7 +1207,7 @@ for-of 会按照可迭代对象的 next() 方法产生值的顺序迭代元素
 label 和 break 的配合使用：
 
 ```
-outermost: 
+outermost:
 for (let i = 0; i < 10; i++) {
   for (let j = 0; j < 10; j++) {
     if (i == 5 && j == 5) {
@@ -1297,7 +1297,7 @@ function functionName(arg0,arg1,...,argN) {
 
 ## 原始值与引用值
 
-原始值：6种原始数据类型（undefined，null，string，number，boolean，symbol）
+原始值：6 种原始数据类型（undefined，null，string，number，boolean，symbol）
 
 引用值：对象（object）
 
@@ -1349,7 +1349,7 @@ console.log(obj2.name); // "lin"
 
 ### 传递参数
 
-***ECMAscript中所有函数的参数都是按值传递的***
+**_ECMAscript 中所有函数的参数都是按值传递的_**
 
 按值传递（函数内对参数的操作不会影响函数外的变量）：
 
@@ -1358,7 +1358,7 @@ function addTen(num) {
   num += 10;
   return num;
 }
-let count = 10;             
+let count = 10;
 // 10，没有变化，说明是按值传递
 // 如果是按引用传递，那么 count 的值应该为 20
 let result = addTen(count); // 20
@@ -1440,7 +1440,7 @@ window
 
 - 有哪几个变量对象？window 的变量对象、changeColor() 的变量对象、swapColor() 的变量对象，它们一级套一级，属于嵌套关系
 - 代码执行时，如何解析标识符（查找需要的变量）？代码执行时，会先从当前变量对象查询，如果没有，再到上一级变量对象查询，直到找到变量（不能查询下一级）
-- 代码执行到 `color2 = color1;`， 按什么顺序查找变量 color1？变量对象1（temp）===> 变量对象2（swapColor()）===> 变量对象2（color2）===> 变量对象3（changeColor()）===> 变量对象3（color1）===> 全局上下文的变量对象（window）
+- 代码执行到 `color2 = color1;`， 按什么顺序查找变量 color1？变量对象 1（temp）===> 变量对象 2（swapColor()）===> 变量对象 2（color2）===> 变量对象 3（changeColor()）===> 变量对象 3（color1）===> 全局上下文的变量对象（window）
 
 ### 作用域链增强
 
@@ -1540,19 +1540,19 @@ function problem() {
 
 以上代码，ob1 的属性引用了 ob2，而 ob2 的属性引用了 ob1，如果采用标记清理策略，完全没有问题，因为当函数执行完毕，跳出当前作用域后，垃圾回收程序会将 problem() 上下文中所有的变量清除。如果采用引用计数策略，ob1 和 ob2 的引用数永远是 2，并且永远不会变为 0，内存永远不会被释放
 
-问题不止于此。在 IE8 时期，BOM DOM 中的对象是 C++ 实现的（COM对象），而这些 COM 对象采用引用计数的垃圾回收策略，因此即使 JS 使用标记清理策略，如果 JS 中的对象和 DOM 对象产生了循环调用，DOM 对象永远不会被回收，除非在代码中将对象的属性设为 null，手动将引用数重置为 0。好在 IE9 已经将 DOM BOM 对象改为了 JS 对象，避免了问题
+问题不止于此。在 IE8 时期，BOM DOM 中的对象是 C++ 实现的（COM 对象），而这些 COM 对象采用引用计数的垃圾回收策略，因此即使 JS 使用标记清理策略，如果 JS 中的对象和 DOM 对象产生了循环调用，DOM 对象永远不会被回收，除非在代码中将对象的属性设为 null，手动将引用数重置为 0。好在 IE9 已经将 DOM BOM 对象改为了 JS 对象，避免了问题
 
 ### 性能
 
 如果垃圾回收频率过低，那么内存中会有太多变量，造成性能损失。如果垃圾回收频率过高，那么对于重度依赖 JS 的网页，可能需要多次加载变量，造成性能损失
 
-IE 曾饱受诟病。它的策略如下，分配 256 个变量、4096个对象/数组字面量和数组slot、64KB字符串，只要满足其中一个条件，就会执行垃圾回收。问题在于，可能一次真的需要用到那么多的变量，这样会导致垃圾回收频繁执行，影响性能
+IE 曾饱受诟病。它的策略如下，分配 256 个变量、4096 个对象/数组字面量和数组 slot、64KB 字符串，只要满足其中一个条件，就会执行垃圾回收。问题在于，可能一次真的需要用到那么多的变量，这样会导致垃圾回收频繁执行，影响性能
 
 IE7 更新了垃圾回收程序，之前固定的阈值被改良为动态阈值，阈值初始值和之前相同，如果本次回收的内存不到已分配的 15%，这些阈值就会翻倍，如果本次回收的内存超过了已分配的 85%，那么阈值会重置为初始值。极大提高了性能
 
 ### 内存管理（TODO）
 
-JS 提供了垃圾回收程序，开发者通常无需关心内存管理，不过仍然有一些方法可以进行内存优化。优化内存的最佳手段就是保证执行代码时只保存必要的数据，如果不再需要数据，将其设为 null，这种方法叫做 ***解除引用***
+JS 提供了垃圾回收程序，开发者通常无需关心内存管理，不过仍然有一些方法可以进行内存优化。优化内存的最佳手段就是保证执行代码时只保存必要的数据，如果不再需要数据，将其设为 null，这种方法叫做 **_解除引用_**
 
 还有一些内存管理的方法：
 
@@ -1590,14 +1590,14 @@ let now = new Date();
 
 如果要创建特定的时间，需要方法的协助：Date.parse() 和 Date.UTC()
 
-#### Date.parse() 
+#### Date.parse()
 
 接受一个符合要求格式的字符串，尝试将其转换为毫秒数（不符合规则返回 NaN），以下是其支持的日期格式：
 
 - "5/23/2019"
 - "May 23, 2019"
-- "Tue May 23 2019 00:00:00 GMT-0700" (GMT，GreenwichMeanTime，格林威治标准时间，-0700表示是西七区的时间)
-- "2019-05-23T00:00:00Z"（Z表示零时区，如果是+8表示东八区）
+- "Tue May 23 2019 00:00:00 GMT-0700" (GMT，GreenwichMeanTime，格林威治标准时间，-0700 表示是西七区的时间)
+- "2019-05-23T00:00:00Z"（Z 表示零时区，如果是+8 表示东八区）
 
 ```
 // 以下两种方式是等价的
@@ -1605,7 +1605,7 @@ let now = new Date("5/23/2019");
 let now = new Date(Date.parse("5/23/2019"));
 ```
 
-#### Date.UTC() 
+#### Date.UTC()
 
 可以接受多个参数：年，月（0-11），日（1-31），时（0-23），分，秒，毫秒，其中年月是必须的，其他可选
 
@@ -1644,25 +1644,25 @@ duration = finish - start;
 - toTimeString()，时分秒，时区
 - toLocaleDateString()，本地的时区，时分秒
 - toLocaleTimeString()，时分秒
-- toUTCString()，UTC时间（自协调世界时）
+- toUTCString()，UTC 时间（自协调世界时）
 
 ### get/set 方法
 
-这类方法用于获取（get）或设置（set）具体的时间，每个 set 方法都有对应的 get 方法，故以下对  get 方法省略，并且每个 set 方法都有对应的 setUTC 方法，比如 `setHours(0-23)` 对应的 setUTC 方法 `setUTCHours(0-23)` ，以下也对 setUTC 方法省略
+这类方法用于获取（get）或设置（set）具体的时间，每个 set 方法都有对应的 get 方法，故以下对 get 方法省略，并且每个 set 方法都有对应的 setUTC 方法，比如 `setHours(0-23)` 对应的 setUTC 方法 `setUTCHours(0-23)` ，以下也对 setUTC 方法省略
 
 - setFullYear(四位数)
-- setMonth(0-11)，大于11则加年
-- setDate(1-31)，大于31则加月
-- setHours(0-23)，大于23则加天
-- setMinutes(0-59)，大于59则加时
-- setSeconds(0-59)，大于59则加分
-- setMilliseconds(0-59)，大于59则加秒
+- setMonth(0-11)，大于 11 则加年
+- setDate(1-31)，大于 31 则加月
+- setHours(0-23)，大于 23 则加天
+- setMinutes(0-59)，大于 59 则加时
+- setSeconds(0-59)，大于 59 则加分
+- setMilliseconds(0-59)，大于 59 则加秒
 
 特殊的方法：
 
-- getDay()，周几（返回0-6），有对应的 getUTC 方法，没有对应 set 方法
+- getDay()，周几（返回 0-6），有对应的 getUTC 方法，没有对应 set 方法
 - setTime(毫秒值)，设置日期毫秒值，有对应的 get 方法，没有 getUTC 方法
-- getTimezoneOffset()，返回本地时区与UTC时间的偏移量（分钟）
+- getTimezoneOffset()，返回本地时区与 UTC 时间的偏移量（分钟）
 
 ## RegExp (TODO)
 
@@ -1750,7 +1750,7 @@ let booleanObject = new Boolean(true);
 - valueOf()，返回原始值 true 或 false
 - toString()，返回字符串 "true" 或 "false"
 
-强烈建议 ***永远不要使用 Boolean 包装类*** ，而是使用原始值，因为包装类容易和原始值混淆：
+强烈建议 **_永远不要使用 Boolean 包装类_** ，而是使用原始值，因为包装类容易和原始值混淆：
 
 ```
 let falseObj = new Boolean(false);
@@ -1829,7 +1829,7 @@ String 类型提供了很多方法来解析或操作字符串：
 
 ##### 编码
 
-字符：一个字符由 16 位（4位16进制数）码元（code unit）组成
+字符：一个字符由 16 位（4 位 16 进制数）码元（code unit）组成
 
 JS 字符串的编码：采用 UCS-2 和 UTF-16 混合，不过对于采用 16 位编码的字符（U+0000~U+FFFF），这两种编码实际上一样。[关于编码的文章](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/)
 
@@ -1965,6 +1965,8 @@ str.substring(3, 7);  // lo w
 str.substring(-3);    // hello world
 str.substring(3, -4); // hel
 ```
+
+replace()，替换字符串中指定的字符，第一个参数是要被替换的字符，第二个参数是要替换为的字符
 
 #### 字符串位置方法
 
@@ -2102,7 +2104,7 @@ str.localeCompare("zoo");   // -1
 
 #### URL 编码方法
 
-URL编码将字符转换成可以通过 Internet 传输的格式，URL 只能使用 ASCII 字符集通过 Internet 发送
+URL 编码将字符转换成可以通过 Internet 传输的格式，URL 只能使用 ASCII 字符集通过 Internet 发送
 
 URI(Uniform Resource Identifier)：统一资源标识符
 
@@ -2142,7 +2144,7 @@ console.log("hi");
 
 eval() 内部可以正常访问外部定义的变量，在 eval() 内部定义的函数外部也可以访问，但 eval() 内部定义的变量外部访问会报错。
 
-eval() 解析字符串的能力很强大，可以动态创建函数，可以将 JSON 字符串直接解析成 JS 对象，但是它很危险，容易受到 XSS 攻击，让恶意用户插入代码。***不要使用 eval()***
+eval() 解析字符串的能力很强大，可以动态创建函数，可以将 JSON 字符串直接解析成 JS 对象，但是它很危险，容易受到 XSS 攻击，让恶意用户插入代码。**_不要使用 eval()_**
 
 #### 属性
 
@@ -2181,12 +2183,13 @@ let max = Math.max(1,3,4,2,5);  // 5
 let vals = [4,2,3,5,1];
 let min = Math.min(...vals);    // 1
 ```
+
 #### 舍入方法
 
 - ceil() 向上舍入取整
 - floor() 向下舍入取整
 - round() 四舍五入取整
-- fround() 返回数值最接近的单精度（32位）浮点值表示
+- fround() 返回数值最接近的单精度（32 位）浮点值表示
 
 #### 随机数
 
@@ -2218,7 +2221,7 @@ let color = colors[selectFrom(0, colors.length - 1)];
 - pow(x, n) 返回 x 的 n 次方
 - sqrt() 平方根
 - cbrt() 立方根
-- exp(x, n) 返回 x 的 n 次幂 
+- exp(x, n) 返回 x 的 n 次幂
 - 各种三角函数...
 
 # 5 集合引用类型
@@ -2604,7 +2607,7 @@ colors.pop();   // "blue"
 
 ### 排序方法
 
-#### reverse() 
+#### reverse()
 
 将数组倒序排列
 
@@ -2910,7 +2913,7 @@ Map 的键可以使用任何数据类型，Map 内部会使用 SameValueZero 比
 const functionKey = function() {};
 const m = new Map();
 m.set(functionKey, "val1");
-m.get(function(){});    
+m.get(function(){});
 // undefined
 // 意味着使用 SameValueZero 比较 key，独立的对象实例不会冲突
 ```
@@ -3064,7 +3067,7 @@ Set 的迭代器没有 keys()，也有 entries()，不过 entries() 返回的是
 
 ### 属性的类型
 
-ECMA-262 规定了一些 ***内部特性*** 来描述属性的特征，这些特性不能被开发者访问到，为了标识内部特性，采用 `[[Value]]` 的方式表示内部特性
+ECMA-262 规定了一些 **_内部特性_** 来描述属性的特征，这些特性不能被开发者访问到，为了标识内部特性，采用 `[[Value]]` 的方式表示内部特性
 
 属性可以分两类：数据属性、访问器属性
 
@@ -3116,7 +3119,7 @@ Object.defineProperty(person, "name", {
   writable: false,
   value: "lin"
 });
-console.log(person.name); 
+console.log(person.name);
 // lin
 person.name = "Grey";
 console.log(person.name);
@@ -3241,7 +3244,7 @@ Object.getOwnPropertyDescriptors()
 let descriptor = Object.getOwnPropertyDescriptors(book);
 console.log(descriptor);
 
-/** 
+/**
 返回值：
 {
   edition: {
@@ -3270,7 +3273,7 @@ console.log(descriptor);
 
 合并（merge）操作有时也被称为混入（mixin）
 
-Object.assign()，第一个参数是目标对象，之后可以有一个或多个对象参数，作为要合并的源对象。会将每个源对象中的所有 ***可枚举***（可以 for-in 遍历） 和 ***自有***（非继承属性） 属性复制到目标对象。这个方法会使用源对象的 [[Get]] 获取属性的值，使用目标对象的 [[Set]] 设置属性的值
+Object.assign()，第一个参数是目标对象，之后可以有一个或多个对象参数，作为要合并的源对象。会将每个源对象中的所有 **_可枚举_**（可以 for-in 遍历） 和 **_自有_**（非继承属性） 属性复制到目标对象。这个方法会使用源对象的 [[Get]] 获取属性的值，使用目标对象的 [[Set]] 设置属性的值
 
 ```
 let dest, src, result;
@@ -3700,7 +3703,7 @@ Object 的原型对象为 null，因为 Object 位于原型链的最顶层：
 alert(Person.prototype.__proto__.__proto__ === null);   // true
 ```
 
-关键：构造函数、原型对象、实例是 3 个完全不同的对象，实例和其构造函数中都有相应的属性（ `__proto__` 和 prototype ）指向构造函数的原型对象，而实例和构造函数之间没有关系，但是实例仍然可以以  `person1.sayName()` 的方式调用构造函数原型对象的函数，这是由于对象属性查找机制的原因
+关键：构造函数、原型对象、实例是 3 个完全不同的对象，实例和其构造函数中都有相应的属性（ `__proto__` 和 prototype ）指向构造函数的原型对象，而实例和构造函数之间没有关系，但是实例仍然可以以 `person1.sayName()` 的方式调用构造函数原型对象的函数，这是由于对象属性查找机制的原因
 
 #### 原型方法
 
@@ -4080,7 +4083,7 @@ Son.prototype.sayHi = function(){
 }
 
 let son = new Son();
-son.sayHi();  // Hello 
+son.sayHi();  // Hello
 
 let father = new Father();
 father.sayHi();   // Hi
@@ -4289,7 +4292,7 @@ Son.prototype.sayHello = function() {
 
 不同的是，组合继承方法通过调用父类构造函数来继承原型方法，因为盗用构造函数已经对父类构造函数进行调用了，重复的调用会导致父类构造函数中的属性既存在于子类实例中，又存在于子类原型对象中。而寄生式组合继承这种方法通过一个继承函数，对父类原型对象进行复制，并没有调用构造函数，相比组合继承提高了效率，不会在子类实例和子类原型对象中产生同名属性
 
-***寄生式组合继承可以算是引用类型继承的最佳模式***
+**_寄生式组合继承可以算是引用类型继承的最佳模式_**
 
 ## 类
 
@@ -4402,7 +4405,7 @@ console.log(Person.name);       // PersonName
 
 ```
 let instance = new Person();
-let instance2 = new instance.constructor(); 
+let instance2 = new instance.constructor();
 ```
 
 #### 把类当作特殊函数
@@ -4747,4 +4750,3 @@ function f() {
 虽然 ES 没有提供参数的重载，但是可以通过 arguments 判断参数个数，从而实现重载
 
 arguments 可以和命名参数在函数中同时使用
-

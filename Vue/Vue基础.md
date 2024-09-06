@@ -43,11 +43,7 @@
     - [有编译器版本？无编译器版本？](#有编译器版本无编译器版本)
   - [组件](#组件)
 - [Vue 工程化](#vue-工程化)
-  - [工程化工具](#工程化工具)
-    - [Vite](#vite)
-    - [Sass](#sass)
-    - [PostCSS](#postcss)
-    - [ESLint](#eslint)
+  - [Vite](#vite)
   - [create-vue](#create-vue)
   - [组件](#组件-1)
     - [SFC](#sfc)
@@ -55,7 +51,7 @@
     - [组件使用](#组件使用)
     - [组件样式](#组件样式)
       - [scoped-css](#scoped-css)
-      - [Sass](#sass-1)
+      - [Sass](#sass)
     - [组件传值](#组件传值)
       - [父传子](#父传子)
       - [子传父](#子传父)
@@ -71,7 +67,20 @@
     - [事件钩子](#事件钩子)
     - [transition-gruop](#transition-gruop)
     - [Animate.css](#animatecss)
-
+- [前端工具](#前端工具)
+  - [Sass](#sass-1)
+  - [PostCSS](#postcss)
+  - [ESLint](#eslint)
+  - [Prettier](#prettier)
+  - [TailwindCSS](#tailwindcss)
+  - [PurgeCSS](#purgecss)
+  - [Pinia](#pinia)
+  - [vee-validate](#vee-validate)
+  - [Firebase](#firebase)
+  - [JSON Web Token](#json-web-token)
+  - [Vue Router](#vue-router)
+  - [Font Awesome](#font-awesome)
+  - [Howler.js](#howlerjs)
 
 # 使用 Vue
 
@@ -234,12 +243,12 @@ vue 会将 computed 中方法当作属性名，方法返回值当作属性值，
 ```
 watch: {
     age(newVal, oldVal) {
-
+      ...
     }
 }
 ```
 
-以上是一个示例，这个侦听器监听 data 中的 age，如果 age 的值变化，会调用这个方法，并且传入两个参数，第一个是新值，第二个是旧值 
+以上是一个示例，这个侦听器监听 data 中的 age，如果 age 的值变化，会调用这个方法，并且传入两个参数，第一个是新值，第二个是旧值
 
 侦听器可以看作一种特殊的方法，相比较于计算属性，它更加灵活，可以根据参数中的 newVal，去执行一些异步的操作
 
@@ -655,7 +664,6 @@ updateLastName(msg, event) {
 <div id="name"></div>
 ```
 
-
 ```
 const data = {
     name: 'Luis'
@@ -751,7 +759,7 @@ vm.mount("#app")
 
 ```
 let vm = Vue.createApp({
-    
+
 })
 
 vm.component('hello', {
@@ -782,9 +790,7 @@ vm.mount("#app")
 
 # Vue 工程化
 
-## 工程化工具
-
-### Vite
+## Vite
 
 [官方文档](https://cn.vitejs.dev/guide/)
 
@@ -811,105 +817,6 @@ vite 提供的指令：
 - dev：开发环境使用，在本地运行项目，实时更新
 - build：将项目打包到 dist 目录，目录中文件可以直接投入生产环境
 - preview：在本地服务器运行 dist 目录下打包好的项目，不会实时更新
-
-### Sass
-
-一种 CSS 预处理语言，运行时需要将 sass/scss 文件编译为 css 文件，是 css 的超集
-
-安装
-
-```
-npm install sass --save-dev
-```
-
-`--save-dev` 指定 sass 保存到开发依赖中（devDependencies）
-
-在 vite 中可以通过在 main.js 文件中使用 import 直接导入 sass 文件，vite 会自行编译打包
-
-### PostCSS
-
-在编写完 CSS 后对其进行处理
-
-PostCSS 有许多插件，用于提供各种功能：
-
-autoprefixer 插件用于为 CSS 添加浏览器供应商前缀（-webkit- 等）
-
-```
-npm install autoprefixer --save-dev
-```
-
-vite 中内置了 PostCSS，需要通过在根目录创建 postcss.config.cjs 文件来激活
-
-```
-module.exports = {
-    plugins: [require('autoprefixer')]
-}
-```
-
-这个文件对 postcss 进行配置，使用 autoprefixer 插件
-
-### ESLint
-
-ESlint 提供了许多规则，以检查代码格式是否符合规范
-
-安装 eslint：
-
-```
-npm install eslint --save-dev
-```
-
-安装 [globals](https://www.npmjs.com/package/globals)（用于在 eslint 中配置 JS 运行环境）
-
-```
-npm install globals --save-dev
-```
-
-由于 vite 中没有集成 ESlint，必须通过社区插件将 ESlint 集成到工作流中：
-
-[vite-plugin-eslint](https://www.npmjs.com/package/vite-plugin-eslint)
-
-```
-npm install vite-plugin-eslint --save-dev
-```
-
-[vite 配置插件](https://cn.vitejs.dev/guide/using-plugins.html#adding-a-plugin)： 在根目录创建 vite.config.js 以配置 ESlint
-
-```
-import { defineConfig } from 'vite'
-import eslint from 'vite-plugin-eslint'
-
-export default defineConfig({
-  plugins: [eslint()]
-})
-```
-
-还需要配置 eslint，创建文件 eslint.config.js
-
-```
-import globals from "globals";
-
-export default [{
-    languageOptions: {
-        globals: {
-            ...globals.browser,
-        },
-
-        ecmaVersion: 2022,
-        sourceType: "module",
-    },
-
-    rules: {
-        // 当使用单引号时会报错
-        quotes: "error",
-    },
-}];
-```
-
-这时启动项目，就可以看到 eslint 的报错，列举了检查出的错误
-
-为了更直观地在编辑器中看到错误，安装 vscode 插件：ESlint
-
-eslint 支持强制修复这些错误，这需要在 package.json 文件中配置指令。比如，修复 main.js 文件中的错误 `"lint": "eslint main.js --fix"`，配置完成后再控制台执行 `npm run init` 执行指令
 
 ## create-vue
 
@@ -1301,26 +1208,26 @@ keepalive 标签保证组件一直保存在内存中，不会被销毁，组件�
 
 Vue 提供了内置组件 transition ，实现 CSS 过渡
 
-为一个 transition 标签设置 name 属性，并通过特定类名的 css 实现过渡 
+为一个 transition 标签设置 name 属性，并通过特定类名的 css 实现过渡
 
-进入动画（ * 是在 transition 标签中定义的名称）：
+进入动画（ \* 是在 transition 标签中定义的名称）：
 
-- *-enter-from，进入的起始帧
-- *-enter-to，进入完成的最终帧
-- *-enter-active，进入过程，一般用于定义动画速率
+- \*-enter-from，进入的起始帧
+- \*-enter-to，进入完成的最终帧
+- \*-enter-active，进入过程，一般用于定义动画速率
 
 离开动画：
 
-- *-leave-from
-- *-leave-to
-- *-leave-active
+- \*-leave-from
+- \*-leave-to
+- \*-leave-active
 
 示例：
 
 ```
 <template>
   <button type="button" @click="flag = !flag">Toggle</button>
-  
+
   <transition name="fade" mode="out-in">
     <h2 v-if="flag">Hello</h2>
     <h2 v-else>Hi</h2>
@@ -1362,9 +1269,9 @@ export default {
 
 ### 动画
 
-可以在 *-enter-acive 或 *-leave-acive 中添加动画属性，这样可以自定义进入和离开的动画
+可以在 _-enter-acive 或 _-leave-acive 中添加动画属性，这样可以自定义进入和离开的动画
 
-如果 *-enter-acive 或 *-leave-acive 中同时有 transition 和 animation 属性，并且它们的时长不一样，可以通过给 transition 标签添加 type="transition" 或 type="animation" 指定过渡的时间
+如果 _-enter-acive 或 _-leave-acive 中同时有 transition 和 animation 属性，并且它们的时长不一样，可以通过给 transition 标签添加 type="transition" 或 type="animation" 指定过渡的时间
 
 transition 标签有 apppear 属性，设置后可以在页面第一次展示时加载进入动画
 
@@ -1485,8 +1392,8 @@ transition 标签提供了属性，可以自定义 CSS 动画类的名称：
 <template>
   <button @click="addItem">Add</button>
   <ul>
-    <transition-group name="fade" 
-      enter-active-class="animate__animated animate__bounceIn" 
+    <transition-group name="fade"
+      enter-active-class="animate__animated animate__bounceIn"
       leave-active-class="animate__animated animate__bounceOut"
     >
       <li v-for="(number, index) in numbers" :key="number" @click="removeItem(index)">
@@ -1513,3 +1420,169 @@ transition 标签提供了属性，可以自定义 CSS 动画类的名称：
 }
 ```
 
+# 前端工具
+
+## Sass
+
+一种 CSS 预处理语言，运行时需要将 sass/scss 文件编译为 css 文件，是 css 的超集
+
+安装
+
+```
+npm install sass --save-dev
+```
+
+`--save-dev` 指定 sass 保存到开发依赖中（devDependencies）
+
+在 vite 中可以通过在 main.js 文件中使用 import 直接导入 sass 文件，vite 会自行编译打包
+
+## PostCSS
+
+在编写完 CSS 后对其进行处理
+
+PostCSS 有许多插件，用于提供各种功能：
+
+autoprefixer 插件用于为 CSS 添加浏览器供应商前缀（-webkit- 等）
+
+```
+npm install autoprefixer --save-dev
+```
+
+vite 中内置了 PostCSS，需要通过在根目录创建 postcss.config.cjs 文件来激活
+
+```
+module.exports = {
+    plugins: [require('autoprefixer')]
+}
+```
+
+这个文件对 postcss 进行配置，使用 autoprefixer 插件
+
+## ESLint
+
+ESlint 提供了许多规则，以检查代码格式是否符合规范
+
+安装 eslint：
+
+```
+npm install eslint --save-dev
+```
+
+安装 [globals](https://www.npmjs.com/package/globals)（用于在 eslint 中配置 JS 运行环境）
+
+```
+npm install globals --save-dev
+```
+
+由于 vite 中没有集成 ESlint，必须通过社区插件将 ESlint 集成到工作流中：
+
+[vite-plugin-eslint](https://www.npmjs.com/package/vite-plugin-eslint)
+
+```
+npm install vite-plugin-eslint --save-dev
+```
+
+[vite 配置插件](https://cn.vitejs.dev/guide/using-plugins.html#adding-a-plugin)： 在根目录创建 vite.config.js 以配置 ESlint
+
+```
+import { defineConfig } from 'vite'
+import eslint from 'vite-plugin-eslint'
+
+export default defineConfig({
+  plugins: [eslint()]
+})
+```
+
+还需要配置 eslint，创建文件 eslint.config.js
+
+```
+import globals from "globals";
+
+export default [{
+    languageOptions: {
+        globals: {
+            ...globals.browser,
+        },
+
+        ecmaVersion: 2022,
+        sourceType: "module",
+    },
+
+    rules: {
+        // 当使用单引号时会报错
+        quotes: "error",
+    },
+}];
+```
+
+这时启动项目，就可以看到 eslint 的报错，列举了检查出的错误
+
+为了更直观地在编辑器中看到错误，安装 vscode 插件：ESlint
+
+ESlint 支持强制修复这些错误，这需要在 package.json 文件中配置指令。比如，修复 main.js 文件中的错误 `"lint": "eslint main.js --fix"`，配置完成后再控制台执行 `npm run lint` 执行指令即可修复错误
+
+在 VSCode 中启用 ESlint 在保存文件时自动修复：
+
+- 打开 VScode 的 settings.json 文件，添加以下配置：
+
+```
+"editor.codeActionsOnSave": {
+  "source.fixAll.eslint": "explicit"
+}
+```
+
+## Prettier
+
+格式化代码，功能和 ESlint 有重复，只不过 Prettier 只能检查代码格式，而 ESlint 还可以检查其他代码规范（比如变量类型 var const 的使用）
+
+## TailwindCSS
+
+提供了大量原子类，一个 CSS class 就是一条 CSS 样式，不用频繁地在 html 和 css 之间切换
+
+## PurgeCSS
+
+构建时，会剔除在项目中中没有用到的第三方库的多余样式，以减小第三方库的体积
+
+## Pinia
+
+Vue 提供的状态管理工具，可以集中管理状态数据，组件不用再通过一层一层的组件传值获取状态数据，可以直接进行访问
+
+[选项式 API 使用 Pinia](https://pinia.vuejs.org/zh/cookbook/options-api.html)
+
+## vee-validate
+
+为 vue 打造的表单验证库，[官网](https://vee-validate.logaretm.com/v4/)
+
+vee-validate 提供了组件 Form Field
+
+## Firebase
+
+为客户端提供后端服务的开发平台
+
+[官方文档](https://firebase.google.com/docs/guides?hl=zh-cn)
+
+## JSON Web Token
+
+身份验证令牌
+
+[官网](https://jwt.io/)
+
+## Vue Router
+
+[官方文档](https://router.vuejs.org/zh/guide/)
+
+单页面应用都需要采用路由进行页面跳转，对比传统方式，节省带宽，减少性能开销
+
+## Font Awesome
+
+免费或付费 icon
+
+导入后，通过 CSS class 使用
+
+[官网](https://docs.fontawesome.com/)
+
+## Howler.js
+
+js 音频库
+
+[文档](https://github.com/goldfire/howler.js#documentation)
