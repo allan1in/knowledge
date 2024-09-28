@@ -81,6 +81,13 @@
   - [Vue Router](#vue-router)
   - [Font Awesome](#font-awesome)
   - [Howler.js](#howlerjs)
+  - [Vue i18n](#vue-i18n)
+  - [Lodash](#lodash)
+  - [NProgress.js](#nprogressjs)
+  - [Code Coverage](#code-coverage)
+  - [rollup-plugin-visualizer](#rollup-plugin-visualizer)
+  - [vercel](#vercel)
+  - [vitest](#vitest)
 
 # 使用 Vue
 
@@ -1586,3 +1593,43 @@ vee-validate 提供了组件 Form Field
 js 音频库
 
 [文档](https://github.com/goldfire/howler.js#documentation)
+
+## Vue i18n
+
+internationalization，国际化
+
+[Vue i18n](https://vue-i18n.intlify.dev/)
+
+## Lodash
+
+字符串处理 js 库
+
+[官网](https://lodash.com/)
+
+## NProgress.js
+
+进度条
+
+[官网](https://ricostacruz.com/nprogress/)
+
+## Code Coverage
+
+google devtools 提供的工具，在开发者工具中，可以查看当前页面使用的文件，以及文件中代码的使用情况
+
+## rollup-plugin-visualizer
+
+[rollup](https://rollupjs.org/) 是一个打包优化工具
+
+vite 使用了 rollup，所以可以使用 [rollup-plugin-visualizer](https://www.npmjs.com/package/rollup-plugin-visualizer) 来进行打包优化，在 vite.config.js 中注册这个插件
+
+## vercel
+
+网站部署
+
+[官网](https://vercel.com/)
+
+## vitest
+
+vite 的测试框架
+
+[官网](https://cn.vitest.dev/guide/)
