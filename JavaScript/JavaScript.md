@@ -6,16 +6,16 @@
       - [重要版本](#重要版本)
     - [DOM](#dom)
     - [BOM](#bom)
-  - [HTML 中的 JavaScript](#html-中的-javascript)
-    - [引入方式](#引入方式)
-      - [内联方式](#内联方式)
-      - [外部引入](#外部引入)
-    - [标签位置](#标签位置)
-    - [推迟执行脚本](#推迟执行脚本)
-    - [异步执行脚本](#异步执行脚本)
-    - [动态加载脚本](#动态加载脚本)
-    - [\<noscript\> 元素](#noscript-元素)
-- [2 JavaScript 基础语法](#2-javascript-基础语法)
+- [2 HTML 中的 JavaScript](#2-html-中的-javascript)
+  - [引入方式](#引入方式)
+    - [内联方式](#内联方式)
+    - [外部引入](#外部引入)
+  - [标签位置](#标签位置)
+  - [推迟执行脚本](#推迟执行脚本)
+  - [异步执行脚本](#异步执行脚本)
+  - [动态加载脚本](#动态加载脚本)
+  - [\<noscript\> 元素](#noscript-元素)
+- [3 JavaScript 基础语法](#3-javascript-基础语法)
   - [语法](#语法)
     - [区分大小写](#区分大小写)
     - [标识符](#标识符)
@@ -93,7 +93,7 @@
     - [with](#with)
     - [switch](#switch)
   - [函数](#函数)
-- [3 变量、作用域与内存](#3-变量作用域与内存)
+- [4 变量、作用域与内存](#4-变量作用域与内存)
   - [原始值与引用值](#原始值与引用值)
     - [动态属性](#动态属性)
     - [复制值](#复制值)
@@ -118,7 +118,7 @@
     - [内存管理（TODO）](#内存管理todo)
       - [通过 const 和 let 声明提升性能](#通过-const-和-let-声明提升性能)
       - [隐藏类和删除操作](#隐藏类和删除操作)
-- [4 基本引用类型](#4-基本引用类型)
+- [5 基本引用类型](#5-基本引用类型)
   - [Date](#date)
     - [构造函数](#构造函数)
       - [Date.parse()](#dateparse)
@@ -168,7 +168,7 @@
       - [舍入方法](#舍入方法)
       - [随机数](#随机数)
       - [其他方法](#其他方法)
-- [5 集合引用类型](#5-集合引用类型)
+- [6 集合引用类型](#6-集合引用类型)
   - [Object](#object-1)
   - [Array](#array)
     - [创建数组](#创建数组)
@@ -244,8 +244,8 @@
     - [与 Map 的区别](#与-map-的区别-1)
     - [定义正式集合操作（TODO）](#定义正式集合操作todo)
   - [WeakSet（TODO）](#weaksettodo)
-- [6 迭代器与生成器（TODO）](#6-迭代器与生成器todo)
-- [7 面向对象](#7-面向对象)
+- [7 迭代器与生成器（TODO）](#7-迭代器与生成器todo)
+- [8 面向对象](#8-面向对象)
   - [理解对象](#理解对象)
     - [属性的类型](#属性的类型)
       - [数据属性](#数据属性)
@@ -328,8 +328,8 @@
       - [抽象基类](#抽象基类)
       - [继承内置类型](#继承内置类型)
       - [类混入](#类混入)
-- [8 代理与反射（TODO）](#8-代理与反射todo)
-- [9 函数](#9-函数)
+- [9 代理与反射（TODO）](#9-代理与反射todo)
+- [10 函数](#10-函数)
   - [箭头函数](#箭头函数)
   - [函数名](#函数名)
   - [理解参数](#理解参数)
@@ -369,6 +369,25 @@
   - [立即调用的函数表达式](#立即调用的函数表达式)
   - [私有变量](#私有变量)
     - [静态私有变量](#静态私有变量)
+    - [模块模式](#模块模式)
+    - [模块增强模式](#模块增强模式)
+- [11 期约和异步函数](#11-期约和异步函数)
+  - [异步编程](#异步编程)
+    - [同步与异步](#同步与异步)
+    - [以往的异步编程](#以往的异步编程)
+      - [异步返回值](#异步返回值)
+      - [失败处理](#失败处理)
+      - [嵌套异步回调](#嵌套异步回调)
+  - [期约](#期约)
+    - [Promise/A+ 规范](#promisea-规范)
+    - [期约基础](#期约基础)
+      - [期约状态机](#期约状态机)
+      - [解决值、拒绝理由](#解决值拒绝理由)
+      - [执行函数](#执行函数)
+      - [Promise.resolve()](#promiseresolve)
+      - [Promise.reject()](#promisereject)
+      - [同步/异步执行的二元性](#同步异步执行的二元性)
+    - [期约的实例方法](#期约的实例方法)
 
 # 0 资源链接
 
@@ -419,11 +438,11 @@ JavaScript 的语言标准
 
 由于在很长的一段时间内，没有 BOM 标准，因此每家浏览器都有自己的 BOM 属性和方法，不过，直到 HTML5 的出现，BOM 的实现细节会逐渐一致
 
-## HTML 中的 JavaScript
+# 2 HTML 中的 JavaScript
 
-### 引入方式
+## 引入方式
 
-#### 内联方式
+### 内联方式
 
 ```
 <script>
@@ -431,7 +450,7 @@ JavaScript 的语言标准
 </script>
 ```
 
-#### 外部引入
+### 外部引入
 
 推荐这种引入方式，原因如下：
 
@@ -444,13 +463,13 @@ JavaScript 的语言标准
 <script src="main.js"></script>
 ```
 
-### 标签位置
+## 标签位置
 
 放在 \<head> 中，下载所有 js 文件后载执行 html，可能会很慢
 
 防止 \<body> 后，加快页面加载速度
 
-### 推迟执行脚本
+## 推迟执行脚本
 
 defer 只对外部脚本有效，会在加载完 html 后再按顺序执行 js
 
@@ -458,7 +477,7 @@ defer 只对外部脚本有效，会在加载完 html 后再按顺序执行 js
 <script defer src="main.js"></script>
 ```
 
-### 异步执行脚本
+## 异步执行脚本
 
 只适用于外部脚本，不同的 js 文件不会按顺序执行
 
@@ -466,11 +485,11 @@ defer 只对外部脚本有效，会在加载完 html 后再按顺序执行 js
 <script async src="main.js"></script>
 ```
 
-### 动态加载脚本
+## 动态加载脚本
 
 js 中可以使用 DOM 添加 \<script> 标签，这种方式添加的 js 默认异步加载，但不建议使用
 
-### \<noscript> 元素
+## \<noscript> 元素
 
 有以下任何一种情况时，\<noscript> 中的内容会被渲染
 
@@ -479,7 +498,7 @@ js 中可以使用 DOM 添加 \<script> 标签，这种方式添加的 js 默认
 
 最初，此标签是用于兼容不支持 JavaScript 的浏览器，但现在对于禁用脚本的浏览器也很有用
 
-# 2 JavaScript 基础语法
+# 3 JavaScript 基础语法
 
 ## 语法
 
@@ -1329,7 +1348,7 @@ function functionName(arg0,arg1,...,argN) {
 
 最佳实践：要么有返回值，要不没有返回值（默认返回 undefined），只在某个条件下返回值的函数，在调试时会很麻烦
 
-# 3 变量、作用域与内存
+# 4 变量、作用域与内存
 
 ## 原始值与引用值
 
@@ -1598,7 +1617,7 @@ let 与 const 都以块为作用域，所以相比域 var (函数作用域)，�
 
 #### 隐藏类和删除操作
 
-# 4 基本引用类型
+# 5 基本引用类型
 
 引用类型：又称为对象定义，描述了对象应有的属性和方法，引用值（对象）是某个特定引用类型的实例
 
@@ -2260,7 +2279,7 @@ let color = colors[selectFrom(0, colors.length - 1)];
 - exp(x, n) 返回 x 的 n 次幂
 - 各种三角函数...
 
-# 5 集合引用类型
+# 6 集合引用类型
 
 ## Object
 
@@ -3095,9 +3114,9 @@ Set 的迭代器没有 keys()，也有 entries()，不过 entries() 返回的是
 
 ## WeakSet（TODO）
 
-# 6 迭代器与生成器（TODO）
+# 7 迭代器与生成器（TODO）
 
-# 7 面向对象
+# 8 面向对象
 
 ## 理解对象
 
@@ -4687,9 +4706,9 @@ c.three();  // three
 
 虽然可以通过继承方法实现混入，但是在设计模式中：组合胜于继承（Composition over inheritance），因此 JS 框架中大多抛弃了混入模式，使用组合模式
 
-# 8 代理与反射（TODO）
+# 9 代理与反射（TODO）
 
-# 9 函数
+# 10 函数
 
 函数本质是对象，每个函数都是 Function 对象的实例，所以函数名是指向函数对象的指针
 
@@ -5532,3 +5551,287 @@ person.getName();
 缺点是每个实例都会重新创建方法，这一点在对象章节中提到过
 
 ### 静态私有变量
+
+为了避免上述问题，可以使用静态私有变量
+
+```
+(function(){
+  let name = '';
+
+  Person = function(value) {
+    name = value;
+  }
+
+  Person.prototype.getName = function(){
+    return name;
+  }
+
+  Person.prototype.setName = function(value){
+    name = value;
+  }
+})();
+
+let person1 = new Person('lin');
+person1.getName();
+// lin
+let person2 = new Person('wang');
+person2.getName();
+// wang
+person1.getName();
+// wang
+```
+
+静态，表示每个实例的私有变量都有指向统一个值
+
+这里使用 IIFE 将私有变量 name 隔离，并且将特权方法定义在构造函数的原型上，这样可以让每个实例都共享原型上的特权方法，并且私有变量也是共享的，这是因为构造函数和特权方法都是闭包，所有的实例都引用了同一个私有变量 name。因此，只要通过一个实例修改其私有变量，那么所有其他的实例的私有变量也会被修改。
+
+### 模块模式
+
+单例对象（singleton），只有一个实例的对象：
+
+```
+let singleton = {
+  name: value,
+  method() {
+    // 方法
+  }
+}
+```
+
+模块模式在单例对象的基础上拓展：
+
+```
+// 这是一个采用模块模式模拟管理组件的函数
+let app = function() {
+  let components = new Array();
+
+  // 初始化组件数组
+  components.push(new BaseComponent());
+
+  // 返回对象
+  return {
+    // 获取组件数量
+    getComponentCount(){
+      return components.length;
+    }
+
+    // 注册新组件
+    registerComponent(component) {
+      if(typeof component == 'object') {
+        components.push(component);
+      }
+    }
+  }
+}
+```
+
+这个函数返回的是一个对象，这个对象通过作用域链关联了私有变量，包含了初始化之后的私有变量，并提供公有方法对私有变量进行操作
+
+### 模块增强模式
+
+增强，是指对象在返回之前需要是某个特定类型的实例
+
+```
+// 这是一个采用模块模式模拟管理组件的函数
+let app = function() {
+  let components = new Array();
+
+  // 初始化组件数组
+  components.push(new BaseComponent());
+
+  // 创建增强对象
+  let comp = new BaseComponent();
+
+  // 获取组件数量
+  comp.getComponentCount = function(){
+    return components.length;
+  }
+
+  // 注册新组件
+  comp.registerComponent = function(component) {
+    if(typeof component == 'object') {
+      components.push(component);
+    }
+  }
+
+  // 返回对象
+  return comp;
+}
+```
+
+# 11 期约和异步函数
+
+## 异步编程
+
+### 同步与异步
+
+同步行为，代码按顺序执行
+
+异步行为，系统中断，不会一直等待异步的结果（比如网络请求的结果），而是执行之后的同步行为
+
+如果某些代码需要用到异步行为的结果，异步行为执行的函数需要在获取结果后通知这些代码
+
+### 以往的异步编程
+
+以往，采用回调函数来通知等待异步结果的代码，但是如果串联多个异步操作，会形成回调地狱
+
+异步函数示例：
+
+```
+function double(val) {
+  setTimeout(() => setTimeout(console.log, 0, val * 2), 1000);
+}
+
+double(2);
+// 4 (1秒之后)
+```
+
+以上代码定义了一个 double 函数，1 秒之后执行内部的 setTimeout 函数，0 秒之后调用 console.log 方法，并传入参数 val \* 2
+
+#### 异步返回值
+
+如果需要将异步函数的返回值传给一个需要它的函数，可以提供一个回调函数，用于操作异步函数返回的结果：
+
+```
+function double(val, callback) {
+  setTimeout(() => callback(val * 2), 1000);
+}
+
+double(2, console.log);
+```
+
+#### 失败处理
+
+异步操作如果失败，怎么处理？这时候需要考虑失败回调、成功回调：
+
+```
+function double(val, success, failure) {
+  setTimeout(() => {
+    try{
+      if(typeof val !== 'number'){
+        throw 'Must provide number!';
+      }
+      success(val * 2);
+    } catch (e) {
+      failure(e);
+    }
+  }, 1000);
+}
+
+double(2, (x) => console.log(`Success: ${x}`), (x) => console.log(`Failure: ${x}`));
+```
+
+#### 嵌套异步回调
+
+如果在回调函数中再嵌套一个异步函数，那情况会更为复杂（回调地狱），非常不利于维护
+
+## 期约
+
+期约（Promise），是对尚不存在的结果的一个替身
+
+### Promise/A+ 规范
+
+ES6 实现了 Promise/A+ 规范
+
+### 期约基础
+
+创建期约：
+
+```
+let p = new Promise(() => {});
+setTimeout(console.log, 0, p);
+// Promise <pending>
+```
+
+打印出一个 Promise 对象，并且携带它当前的状态
+
+#### 期约状态机
+
+期约是一个有状态的对象，有以下 3 种状态：
+
+- 待定（pending）
+- 解决（resolved）或兑现（fulfilled）
+- 拒绝（rejected）
+
+待定，是期约的初始状态，此时它正在等待状态的变化。解决，代表成功。拒绝，代表失败
+
+注意：期约的状态是私有的，不能通过 JS 检测到
+
+#### 解决值、拒绝理由
+
+- 解决值：期约为解决状态时，接受到的返回值
+- 拒绝理由：期约为拒绝状态时，接受到的产生错误的原因信息
+
+上述两种属于期约用例，都是可选的，默认为 undefined
+
+#### 执行函数
+
+期约初始化时，会给其构造函数传入一个执行函数，这是必须的，否则会报错
+
+执行函数的职责：
+
+- 初始化期约的异步行为
+- 执行期约的状态转换（resolve 和 reject 方法）
+
+```
+// 传入执行函数，并调用 resolve 方法改变期约的状态
+let p1 = new Promise((resolve, reject) => resolve());
+
+// 传入执行函数，并调用 reject 方法改变期约的状态
+let p2 = new Promise((resolve, reject) => reject());
+// Uncaught (in promise)
+```
+
+注意：
+
+- 执行函数是同步执行的，因为执行器是期约的初始化程序
+- 执行函数中只能调用一次 resolve() 或 reject()，如果第二次执行会无效
+
+#### Promise.resolve()
+
+Promise.resolve() 方法可以实例化一个解决状态的期约：
+
+```
+// 两者等价
+let p1 = new Promise((resolve, reject) => resolve());
+let p2 = Promise.resolve();
+```
+
+Promise.resolve() 方法也可以传参，参数是解决值，可以将参数包装为一个解决状态的 Promise 对象
+
+Promise.resolve() 具有幂等性，即如果将一个解决状态的 Promise 作为参数传入这个方法，返回的仍然是这个 Promise
+
+#### Promise.reject()
+
+Promise.resolve() 方法可以实例化一个拒绝状态的期约，并抛出错误（这个错误不能被 try/catch 捕获，可以通过拒绝处理程序捕获）
+
+参数是拒绝的理由，这个参数也会被传给拒绝处理程序（then()）
+
+Promise.reject() 没有幂等性，传入一个拒绝状态的期约会被当作拒绝的理由
+
+#### 同步/异步执行的二元性
+
+Promise 的设计导致了不同于 JS 的模式，如以下示例：
+
+```
+try{
+  throw new Error('foo');
+} catch (e) {
+  console.log(e); // Error: foo
+}
+
+try{
+  Promise.reject(new Error('bar'))
+} catch (e) {
+  console.log(e);
+}
+// Uncaught (in promise) Error: bar
+```
+
+可以发现，第一个 try/catch 捕获了错误，但是第二个 try/catch 并没有捕获 Promise 的错误，这是因为它没有通过异步的方式（期约提供的拒绝处理程序方法）来捕获错误，通过同步方式（try/catch）无法捕捉到异步错误
+
+同步/异步执行的二元性：同步执行和异步执行是完全分开的
+
+**_期约是同步执行的，但它也是异步执行的媒介_**
+
+### 期约的实例方法
