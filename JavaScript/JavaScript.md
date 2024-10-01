@@ -388,6 +388,10 @@
       - [Promise.reject()](#promisereject)
       - [同步/异步执行的二元性](#同步异步执行的二元性)
     - [期约的实例方法](#期约的实例方法)
+      - [实现 Thenable 接口](#实现-thenable-接口)
+      - [Promise.prototype.then()](#promiseprototypethen)
+      - [Promise.prototype.catch()](#promiseprototypecatch)
+      - [Promise.prototype.finally()](#promiseprototypefinally)
 
 # 0 资源链接
 
@@ -471,7 +475,7 @@ JavaScript 的语言标准
 
 ## 推迟执行脚本
 
-defer 只对外部脚本有效，会在加载完 html 后再按顺序执行 js
+defer 只对外部脚本有效，会在解析完 html 后再按顺序执行 js
 
 ```
 <script defer src="main.js"></script>
@@ -479,7 +483,7 @@ defer 只对外部脚本有效，会在加载完 html 后再按顺序执行 js
 
 ## 异步执行脚本
 
-只适用于外部脚本，不同的 js 文件不会按顺序执行
+只适用于外部脚本，会异步下载所有的脚本，但是它们不一定会按照出现顺序执行，谁先下载完谁执行
 
 ```
 <script async src="main.js"></script>
@@ -5762,7 +5766,7 @@ setTimeout(console.log, 0, p);
 - 解决值：期约为解决状态时，接受到的返回值
 - 拒绝理由：期约为拒绝状态时，接受到的产生错误的原因信息
 
-上述两种属于期约用例，都是可选的，默认为 undefined
+上述两种属于期约用例，都是可选的，没有默认为 undefined
 
 #### 执行函数
 
@@ -5799,7 +5803,7 @@ let p2 = Promise.resolve();
 
 Promise.resolve() 方法也可以传参，参数是解决值，可以将参数包装为一个解决状态的 Promise 对象
 
-Promise.resolve() 具有幂等性，即如果将一个解决状态的 Promise 作为参数传入这个方法，返回的仍然是这个 Promise
+Promise.resolve() 具有幂等性，即如果将一个解决状态的 Promise 作为参数传入这个方法，返回的仍然是这个 Promise（同时保留期约的状态）
 
 #### Promise.reject()
 
@@ -5835,3 +5839,99 @@ try{
 **_期约是同步执行的，但它也是异步执行的媒介_**
 
 ### 期约的实例方法
+
+期约的实例方法是连接外部同步代码和内部异步代码的桥梁
+
+#### 实现 Thenable 接口
+
+ES 暴露的异步解构中，任何对象都有 then() 方法，这个方法实现了 Thenable 接口
+
+#### Promise.prototype.then()
+
+这个方法可以为期约添加处理程序，接受两个方法参数：onResolved 和 onRejected，这两个方法分别会在 Promnise 落定为解决状态后执行 onResolved 方法，落定为拒绝状态后执行 onRejected 方法
+
+```
+// 解决处理方法
+function onResolved(id){
+  setTimeout(console.log, 0, id, 'resolved');
+}
+
+// 拒绝处理方法
+function onRejected(id){
+  setTimeout(console.log, 0, id, 'rejected');
+}
+
+// 3秒后解决
+let p1 = new Promise((resolve, reject) => setTimeout(resolve, 3000))
+// 3秒后拒绝
+let p2 = new Promise((resolve, reject) => setTimeout(reject, 3000))
+
+// 为 p1 p2 设置处理方法
+p1.then(() => onResolved('p1'), () => onRejected('p1'));
+p2.then(() => onResolved('p1'), () => onRejected('p2'));
+
+// 3 秒后，期约状态落定，执行处理方法，打印输出
+// p1 resolved
+// p2 rejected
+```
+
+注意：
+
+- then() 的两个处理方法参数是可选的，如省略解决处理方法：`p1.then(null, () => onRejected('p1'))`
+- 任何传给 then() 的非函数类型参数都会被忽略
+
+then() 使用 onResolved() 的一些特殊情况：
+
+```
+let p1 = Promise.resolve('foo');
+
+// then() 不传方法参数，会对期约使用 Promise.reslove() 进行包装，返回原状态的 Promise
+let p2 = p1.then();
+setTimeout(console.log, 0, p2);
+// Promise {<fulfilled>: 'foo'}
+
+// 如果传入的处理方法没有显示的返回值，那么会对期约使用 Promise.reslove() 进行包装，返回原状态的 Promise，其值为 undefined
+let p3 = p1.then(() => {})
+setTimeout(console.log, 0, p3);
+// Promise {<pending>: undefined}
+
+// 如果有返回值，会使用 Promise.resolve() 包装，如下返回了一个拒绝状态的 Promise，使用 Promise.resolve() 包装后，返回拒绝状态的 Promise
+let p4 = p1.then(() => Promise.reject())
+// Uncaught (in promise) undefined
+setTimeout(console.log, 0, p4);
+// Promise {<rejected>: undefined}
+
+// 在处理方法中抛出异常会返回拒绝状态的期约
+let p5 = p1.then(() => {throw 'bar'});
+// Uncaught (in promise) bar
+setTimeout(console.log, 0, p5);
+// Promise {<rejected>: 'bar'}
+
+// 返回错误值并不会改变期约状态，而是将错误对象作为返回值用 Promise.reslove() 包装，返回原状态的 Promise
+let p6 = p1.then(() => Error('baz'))
+setTimeout(console.log, 0, p6);
+// Promise {<fulfilled>: Error: baz}
+```
+
+then() 使用 onReject() 的情况类似，总结如下：
+
+- then() 不传方法参数，会对期约使用 Promise.reslove() 进行包装，返回原状态的 Promise
+- 如果传入的处理函数没有显示的返回值，会对期约使用 Promise.reslove() 进行包装，默认值 undefined
+- 如果传入的处理函数有返回值，会对期约使用 Promise.reslove() 进行包装
+- 如果在传入的处理函数中抛出错误，那么会返回一个拒绝的期约
+
+#### Promise.prototype.catch()
+
+用于给期约添加拒绝处理程序，只有一个参数：onReject()
+
+catch() 是一个语法糖：
+
+```
+// 两者等价
+p.then(null, onRejected);
+p.catch(onRejected);
+```
+
+catch() 和 then() 一样，也会根据处理函数的返回值，使用 Promise.reslove() 进行包装
+
+#### Promise.prototype.finally()
