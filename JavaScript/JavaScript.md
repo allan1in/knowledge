@@ -392,6 +392,20 @@
       - [Promise.prototype.then()](#promiseprototypethen)
       - [Promise.prototype.catch()](#promiseprototypecatch)
       - [Promise.prototype.finally()](#promiseprototypefinally)
+      - [期约方法的非重入](#期约方法的非重入)
+      - [邻近处理程序的执行顺序](#邻近处理程序的执行顺序)
+      - [传递解决值和拒绝理由](#传递解决值和拒绝理由)
+      - [拒绝期约与错误处理](#拒绝期约与错误处理)
+    - [期约连锁与期约合成](#期约连锁与期约合成)
+      - [期约连锁](#期约连锁)
+      - [期约图](#期约图)
+      - [合并期约](#合并期约)
+        - [Promise.all()](#promiseall)
+        - [Promise.race()](#promiserace)
+      - [串行期约合成](#串行期约合成)
+    - [期约拓展](#期约拓展)
+      - [期约取消](#期约取消)
+      - [期约进度通知](#期约进度通知)
 
 # 0 资源链接
 
@@ -5935,3 +5949,291 @@ p.catch(onRejected);
 catch() 和 then() 一样，也会根据处理函数的返回值，使用 Promise.reslove() 进行包装
 
 #### Promise.prototype.finally()
+
+用于给期约添加 onFinally() 处理程序，期约状态转换为解决或拒绝时都会执行：
+
+```
+let p1 = Promise.resolve();
+let p2 = Promise.reject();
+
+let onFinally = function(){
+  setTimeout(console.log, 0, 'finally');
+}
+
+p1.finally(onFinally);
+// finally
+p2.finally(onFinally);
+// finally
+```
+
+finally() 不同于 then() 或 catch()，它与期约的状态无关，大多数情况返回的只是父期约（对于拒绝和解决状态的期约都一样）：
+
+```
+// 如果 onFinally() 返回了一个待定的期约或者一个拒绝的期约，那么返回值会用 Promise.resolve() 包装，保留待定或拒绝状态
+let p1 = Promise.resolve('foo');
+let p2 = p1.finally(() => new Promise(() => {}));
+let p3 = p1.finally(() => Promise.reject());
+// Uncaught (in promise) undefined
+
+setTimeout(console.log, 0, p2);
+// Promise {<pending>}
+setTimeout(console.log, 0, p3);
+// Promise {<rejected>: undefined}
+```
+
+#### 期约方法的非重入
+
+then()、catch()、finally() 方法会在期约状态落定后调用，传入的处理函数不会立即执行，而仅仅被排期，等待同步代码执行完毕后再按顺序执行：
+
+```
+let p = Promise.resolve();
+
+p.then(() => {
+  console.log('onResolve handler')
+})
+
+console.log('then() returns')
+
+// then() returns
+// onResolve handler
+```
+
+由于这些处理程序都是异步执行的，所以之前的打印都采用异步方式 `setTimeout(console.log, 0, p1);`，目的就是为了让打印能输出正确的顺序或结果
+
+#### 邻近处理程序的执行顺序
+
+如果一个期约有多个处理程序，期约状态落定时，处理程序会按照添加顺序执行
+
+#### 传递解决值和拒绝理由
+
+onResolve 和 onReject 处理程序的第一个参数会分别接收解决值和拒绝理由：
+
+```
+let p1 = Promise.reject('foo');
+let p2 = Promise.resolve('bar');
+
+p1.catch((reason) => {
+  console.log(reason)
+})
+// foo
+p2.then((value) => {
+  console.log(value)
+})
+// bar
+```
+
+#### 拒绝期约与错误处理
+
+拒绝期约类似与 throw()，它们都表示错误出现，需要中断程序的执行。在期约中，在期约的处理函数中返回 Erorr 对象或在执行函数中抛出 Error 都会导致拒绝状态，这个 Erorr 对象就是拒绝理由：
+
+```
+let p1 = new Promise((resolve, reject) => reject(Error('foo')));
+let p2 = new Promise((resolve, reject) => {throw Error('foo')});
+let p3 = Promise.resolve().then(() => {throw Error('foo')});
+let p4 = Promise.reject(Error('foo'));
+
+setTimeout(console.log, 0, p1);
+setTimeout(console.log, 0, p2);
+setTimeout(console.log, 0, p3);
+setTimeout(console.log, 0, p4);
+
+// Uncaught (in promise) Error: foo
+    at <anonymous>:1:50
+    at new Promise (<anonymous>)
+    at <anonymous>:1:10
+// Uncaught (in promise) Error: foo
+    at <anonymous>:2:50
+    at new Promise (<anonymous>)
+    at <anonymous>:2:10
+// Uncaught (in promise) Error: foo
+    at <anonymous>:4:25
+// Uncaught (in promise) Error: foo
+    at <anonymous>:3:46
+```
+
+可以使用任何理由拒绝，最好使用 Erorr 对象，这样可以通过控制台捕获错误信息，更容易调试
+
+异步错误的副作用：通常，错误抛出后，之后的同步代码将不再执行，但是期约中的错误是在消息队列中抛出的，所以不会阻止同步代码的运行：
+
+```
+Promise.reject(Error('foo'));
+console.log('bar')
+// bar
+// Uncaught (in promise) Error: foo
+```
+
+如果想捕获期约错误，只能通过 onRejected() 处理函数捕获：
+
+```
+Promise.reject(Error('foo')).catch((e) => {
+  console.log(e)
+})
+// Error: foo
+```
+
+以下是对同步错误处理和异步错误处理的对比：
+
+```
+// 同步
+console.log('begin');
+try{
+  throw Error('foo')
+}catch(e){
+  console.log(e)
+}
+console.log('end')
+// begin
+// Error: foo
+// end
+
+// 异步
+new Promise((resolve, reject) => {
+  console.log('begin');
+  reject(Error('foo'))
+}).catch((e) => {
+  console.log(e)
+}).then(() => {
+  console.log('end')
+})
+// begin
+// Error: foo
+// end
+```
+
+### 期约连锁与期约合成
+
+#### 期约连锁
+
+期约连锁是将多个期约操作串联，能这样做是因为期约的实例方法都会返回一个新的期约。通过期约连锁可以实现同步处理一连串的异步任务：
+
+```
+let p1 = new Promise((resolve, reject) => {
+  console.log('p1');
+  setTimeout(resolve, 1000);
+})
+
+p1.then(() => new Promise((resolve, reject) => {
+  console.log('p2');
+  setTimeout(resolve, 1000);
+})).then(() => new Promise((resolve, reject) => {
+  console.log('p3');
+  setTimeout(resolve, 1000);
+})).then(() => new Promise((resolve, reject) => {
+  console.log('p4');
+  setTimeout(resolve, 1000);
+}))
+
+// 每隔1秒打印出以下结果：
+// p1
+// p2
+// p3
+// p4
+```
+
+这种串联方式，解决了回调地狱的问题，大大增强了代码的可维护性
+
+#### 期约图
+
+期约连锁可以看作一种有向非循环图的解构，也就是树：
+
+```
+let A = new Promise((resolve, reject) => {
+  console.log('A');
+  resolve();
+})
+
+let B = A.then(() => {console.log('B')});
+let C = A.then(() => {console.log('C')});
+
+B.then(() => {console.log('D')});
+B.then(() => {console.log('E')});
+C.then(() => {console.log('F')});
+C.then(() => {console.log('G')});
+
+// A
+// B
+// C
+// D
+// E
+// F
+// G
+```
+
+#### 合并期约
+
+##### Promise.all()
+
+这个方法接受一个可迭代对象，返回一个新期约，这个新期约的状态由可迭代对象中所有期约的状态共同决定：
+
+- 如果其中有一个期约待定，那么合成的期约也处于待定状态
+- 如果其中有一个期约拒绝，那么合成的期约也处于拒绝状态
+- 当所有期约都解决，合成的期约会处于解决状态
+
+关于合成期约的解决值和拒绝理由：
+
+- 可迭代对象中的每个期约的解决值会按照迭代顺序，组成一个数组，作为合成期约的解决值
+- 可迭代对象中第一个拒绝的期约会将其拒绝理由作为合成对象的拒绝理由，之后再拒绝的期约不会影响合成期约的拒绝理由，但之后的这些拒绝操作也会被静默处理，不会有错误被抛出
+
+##### Promise.race()
+
+这个方法接受一个可迭代的对象，返回一个包装期约，是传入的所有期约中最先落定（解决或拒绝）状态期约的镜像，之后落定的期约会被忽略，但也会对错误静默处理，错误不会被抛出
+
+#### 串行期约合成
+
+有一种常见的场景：后续期约需要之前期约的返回值进行下一步操作。这很像函数合成：
+
+```
+function addTwo(x) {
+  return x + 2;
+}
+function addThree(x) {
+  return x + 3;
+}
+function addFive(x) {
+  return x + 5;
+}
+
+// 函数合成
+let result = addTwo(addThree(addFive(1)));
+console.log(result);
+// 11
+```
+
+使用期约将函数合成：
+
+```
+let result = Promise.resolve(1)
+  .then(addTwo)
+  .then(addThree)
+  .then(addFive);
+
+result.then(console.log);
+// 11
+```
+
+使用数组归并方法简化：
+
+```
+let result = [addTwo, addThree, addFive].reduce((promise, func) => promise.then(func), Promise.resolve(1));
+result.then(console.log);
+// 11
+```
+
+将函数合并操作提炼为一个函数，进一步简化：
+
+```
+// 参数是要合并的函数，返回合并之后的函数
+function compose(...funcs) {
+  return (x) => funcs.reduce((promise, func) => promise.then(func), Promise.resolve(x));
+}
+
+let addTen = compose(addTwo, addThree, addFive)
+addTen(1).then(console.log)
+// 11
+```
+
+### 期约拓展
+
+#### 期约取消
+
+#### 期约进度通知
